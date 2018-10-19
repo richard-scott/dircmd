@@ -10,7 +10,9 @@ _dircmd_hook()
         BACK="${PWD}"
         cd ${DIR}
         source .dircmd/entry
-        export DIRCMD_PATH="${PWD}"
+        if [[ -e ${PWD}/.dircmd/exit ]]; then
+          export DIRCMD_EXIT="${PWD}/.dircmd/exit"
+        fi
         cd ${BACK}
         break
       else
@@ -24,10 +26,9 @@ _dircmd_hook()
     if [[ -e ${OLDPWD}/.dircmd/exit ]]; then
       source ${OLDPWD}/.dircmd/exit
     fi
-    if [[ -n "${DIRCMD_PATH}" ]]; then
-      if [[ -e ${DIRCMD_PATH}/.dircmd/exit ]]; then
-        source ${DIRCMD_PATH}/.dircmd/exit
-      fi
+    if [[ -n "${DIRCMD_EXIT}" ]]; then
+      source ${DIRCMD_EXIT}
+      unset DIRCMD_EXIT
     fi
   fi
   return $previous_exit_status
