@@ -3,7 +3,7 @@ Automating repetitive tasks one directory at a time.
 
 # Installation
 
-    $ curl --location https://github.com/dircmd/dircmd/raw/master/bin/dircmd-install | sudo bash -x
+    $ curl --location https://github.com/dircmd/dircmd/raw/master/bin/dircmd-installer | sudo bash -x
 
 # Usage
 
