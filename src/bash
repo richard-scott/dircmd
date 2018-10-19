@@ -4,31 +4,35 @@ _dircmd_hook()
   local previous_exit_status=$?
 
   if echo "${PWD}/" | egrep -q "^${OLDPWD}" ; then
-    DIR="$(dirname ${PWD})"
-    while [[ "${DIR}" != "/" ]]; do
-      if [[ -e ${DIR}/.dircmd/entry ]]; then
-        BACK="${PWD}"
-        cd ${DIR}
-        source .dircmd/entry
-        if [[ -e ${PWD}/.dircmd/exit ]]; then
-          export DIRCMD_EXIT="${PWD}/.dircmd/exit"
+    if [[ -z "${DIRCMD_EXIT_SCRIPTS}" ]]; then
+      DIR="$(dirname ${PWD})"
+      while [[ "${DIR}" != "/" ]]; do
+        if [[ -e ${DIR}/.dircmd/entry ]]; then
+          BACK="${PWD}"
+          cd ${DIR}
+          source .dircmd/entry
+          if [[ -e ${PWD}/.dircmd/exit ]]; then
+            export DIRCMD_EXIT_SCRIPTS="${DIRCMD_EXIT_SCRIPTS} ${PWD}/.dircmd/exit"
+          fi
+          cd ${BACK}
+          break
+        else
+          DIR="$(dirname ${DIR})"
         fi
-        cd ${BACK}
-        break
-      else
-        DIR="$(dirname ${DIR})"
+      done
+      if [[ -e ${PWD}/.dircmd/entry ]]; then
+        source ${PWD}/.dircmd/entry
       fi
-    done
-    if [[ -e ${PWD}/.dircmd/entry ]]; then
-      source ${PWD}/.dircmd/entry
     fi
   else
     if [[ -e ${OLDPWD}/.dircmd/exit ]]; then
       source ${OLDPWD}/.dircmd/exit
     fi
-    if [[ -n "${DIRCMD_EXIT}" ]]; then
-      source ${DIRCMD_EXIT}
-      unset DIRCMD_EXIT
+    if [[ -n "${DIRCMD_EXIT_SCRIPTS}" ]]; then
+      for DIRCMD_EXIT_SCRIPT in ${DIRCMD_EXIT_SCRIPTS} ; do
+        source ${DIRCMD_EXIT_SCRIPT}
+      done
+      unset DIRCMD_EXIT_SCRIPTS
     fi
   fi
   return $previous_exit_status
