@@ -13,17 +13,16 @@ _dircmd_hook()
   if [[ -z "${DIRCMD}" ]]; then
     if [[ "${PWD}" != "${OLDPWD}" ]]; then
       if echo "${PWD}/" | egrep -q "^${OLDPWD}" ; then
-        DIR="${PWD}"
+        DIR="$(dirname ${PWD})"
         while [[ "${DIR}" != "${OLDPWD}" ]]; do
           if [[ -e ${DIR}/.dircmd/entry ]]; then
             BACK="${PWD}"
             cd ${DIR}
             source .dircmd/entry
-            export DIRCMD="${PWD}"
             cd ${BACK}
             break
           else
-           DIR="$(dirname ${DIR})"
+            DIR="$(dirname ${DIR})"
           fi
         done
       fi
