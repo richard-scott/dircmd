@@ -1,5 +1,2 @@
-if type -t deactivate 2>&1 | head -n 1 | egrep -q "^function$" ; then
-  deactivate
-  unset deactivate
-  [ -n "${OLDPIP}" ] && ${OLDPIP}
-fi
+deactivate
+unset deactivate
