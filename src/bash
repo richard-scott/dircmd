@@ -3,7 +3,7 @@ _dircmd_hook()
 {
   local previous_exit_status=$?
   if [[ -n "${DIRCMD}" ]]; then
-    if ! echo "$PWD" | egrep -q "^$OLDPWD/" ; then
+    if ! echo "$PWD" | egrep -q "^$OLDPWD" ; then
       if [[ -e ${OLDPWD}/.dircmd/exit ]]; then
         source ${OLDPWD}/.dircmd/exit
         unset DIRCMD
