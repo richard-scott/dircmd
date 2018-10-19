@@ -1,5 +1,4 @@
-# Restore $PATH back to what it once was
-export PATH="${OLDPATH}"
-
-# Delete the OLDPATH variable as we no longer require it.
-unset OLDPATH
+if [[ -n "${OLDPATH}" ]]; then
+  export PATH="${OLDPATH}"
+  unset OLDPATH
+fi

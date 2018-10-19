@@ -1,8 +1,6 @@
-# Save the current $PATH so we can restore it later
-export OLDPATH="${PATH}"
-
-# Add the 'bin' directory to the start of the PATH so we can 
-# use commands from that directory without the full path being required.
-if [[ -d ${PWD}/bin ]]; then
-  export PATH="${PWD}/bin:${OLDPATH}"
+if [[ -z "${OLDPATH}" ]]; then
+  export OLDPATH="${PATH}"
+  if [[ -d ${PWD}/bin ]]; then
+    export PATH="${PWD}/bin:${OLDPATH}"
+  fi
 fi
