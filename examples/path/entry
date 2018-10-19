@@ -1,6 +1,4 @@
-if [[ -z "${OLDPATH}" ]]; then
-  export OLDPATH="${PATH}"
-  if [[ -d ${PWD}/bin ]]; then
-    export PATH="${PWD}/bin:${OLDPATH}"
-  fi
+export OLDPATH="${PATH}"
+if [[ -d ${PWD}/bin ]]; then
+  export PATH="${PWD}/bin:${OLDPATH}"
 fi
