@@ -3,38 +3,60 @@ _dircmd_hook()
 {
   local previous_exit_status=$?
 
-  if echo "${PWD}/" | egrep -q "^${OLDPWD}" ; then
-    if [[ -z "${DIRCMD_EXIT_SCRIPTS}" ]]; then
-      DIR="$(dirname ${PWD})"
-      while [[ "${DIR}" != "/" ]]; do
-        if [[ -e ${DIR}/.dircmd/entry ]]; then
-          BACK="${PWD}"
-          cd ${DIR}
-          source .dircmd/entry
-          if [[ -e ${PWD}/.dircmd/exit ]]; then
-            export DIRCMD_EXIT_SCRIPTS="${DIRCMD_EXIT_SCRIPTS} ${PWD}/.dircmd/exit"
-          fi
-          cd ${BACK}
-          break
-        else
-          DIR="$(dirname ${DIR})"
-        fi
-      done
-      if [[ -e ${PWD}/.dircmd/entry ]]; then
-        source ${PWD}/.dircmd/entry
-      fi
+  _dircmd_hook_entry()
+  {
+    if [[ -e ${PWD}/.dircmd/entry ]]; then
+      source ${PWD}/.dircmd/entry
     fi
-  else
+  }
+  _dircmd_hook_exit()
+  {
     if [[ -e ${OLDPWD}/.dircmd/exit ]]; then
       source ${OLDPWD}/.dircmd/exit
     fi
-    if [[ -n "${DIRCMD_EXIT_SCRIPTS}" ]]; then
-      for DIRCMD_EXIT_SCRIPT in ${DIRCMD_EXIT_SCRIPTS} ; do
-        source ${DIRCMD_EXIT_SCRIPT}
+    if [[ -n "${DIRCMD_EXIT}" ]]; then
+      for DIR in ${DIRCMD_EXIT} ; do
+         if ! echo "${PWD}" | egrep -q "^${DIR}/" ; then
+          if [[ -e ${DIR}/.dircmd/exit ]]; then
+            source ${DIR}/.dircmd/exit
+          fi
+        fi
       done
-      unset DIRCMD_EXIT_SCRIPTS
+      unset DIRCMD_EXIT
+    fi
+  }
+  _dircmd_hook_entry_find()
+  {
+    DIR="$(dirname ${PWD})"
+    while [[ "${DIR}" != "/" ]]; do
+      if [[ -e ${DIR}/.dircmd/entry ]]; then
+        BACK="${PWD}"
+        cd ${DIR}
+        source .dircmd/entry
+        if [[ -e ${PWD}/.dircmd/exit ]]; then
+          export DIRCMD_EXIT="${DIRCMD_EXIT} ${PWD}"
+        fi
+        cd ${BACK}
+        break
+      else
+        DIR="$(dirname ${DIR})"
+      fi
+    done
+  }
+
+  if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
+      _dircmd_hook_exit
+  elif echo "${PWD}" | egrep -q "^${OLDPWD}" ; then
+    _dircmd_hook_entry_find
+    _dircmd_hook_entry
+  else
+    if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
+      _dircmd_hook_exit
+      _dircmd_hook_entry_find
+      _dircmd_hook_entry
     fi
   fi
+
   return $previous_exit_status
 }
 if ! [[ "${PROMPT_COMMAND}" =~ _dircmd_hook ]]; then
