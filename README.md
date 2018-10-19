@@ -6,8 +6,7 @@ This utility can save you time when you need to repeat the same commands time an
     $ cd ~/my_next_great_application
     $ source env/bin/activate
 
-Great, you are now setup to start coding... but what if you want to quickly do something else in Python somewhere on the system outside of your Virtual Environment. 
-you need to disable your Virtual Environment each time with this command:
+Great, you are now setup to start coding. What if you want to quickly do something else in Python somewhere on the system outside of your current Virtual Environment. Say you need to install a pip package in an old application codebase. You would need to do the following:
 
     $ deactivate
     $ cd ~/my_previous_great_application
@@ -17,7 +16,7 @@ you need to disable your Virtual Environment each time with this command:
     $ cd ~/my_next_great_application
     $ source env/bin/activate
 
-Now you can carry on where you left off, but what if you could do this:
+Now you can carry on where you left off, but what if you could reduce your typing down to just 42% of that. With dircmd helping, you can reduce this to just 3 commands:
 
     $ cd ~/my_next_great_application
     $ pip install <something>
