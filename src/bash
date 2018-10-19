@@ -2,37 +2,32 @@
 _dircmd_hook()
 {
   local previous_exit_status=$?
-  if [[ -n "${DIRCMD_PATH}" ]]; then
-    if ! echo "${PWD}" | egrep -q "^${DIRCMD_PATH}" ; then
-      if [[ -e ${DIRCMD_PATH}/.dircmd/exit ]]; then
-        source ${DIRCMD_PATH}/.dircmd/exit
-        unset DIRCMD_PATH
+
+  if echo "${PWD}/" | egrep -q "^${OLDPWD}" ; then
+    DIR="$(dirname ${PWD})"
+    while [[ "${DIR}" != "/" ]]; do
+      if [[ -e ${DIR}/.dircmd/entry ]]; then
+        BACK="${PWD}"
+        cd ${DIR}
+        source .dircmd/entry
+        export DIRCMD_PATH="${PWD}"
+        cd ${BACK}
+        break
+      else
+        DIR="$(dirname ${DIR})"
       fi
-    fi
-  fi
-  if [[ -z "${DIRCMD_PATH}" ]]; then
-    if [[ "${PWD}" != "${OLDPWD}" ]]; then
-      if echo "${PWD}/" | egrep -q "^${OLDPWD}" ; then
-        DIR="$(dirname ${PWD})"
-        while [[ "${DIR}" != "${OLDPWD}" ]]; do
-          if [[ -e ${DIR}/.dircmd/entry ]]; then
-            BACK="${PWD}"
-            cd ${DIR}
-            source .dircmd/entry
-            export DIRCMD_PATH="${PWD}"
-            cd ${BACK}
-            break
-          else
-            DIR="$(dirname ${DIR})"
-          fi
-        done
-      fi
-    fi
-  fi
-  if [[ -z "${DIRCMD_PATH}" ]]; then
+    done
     if [[ -e ${PWD}/.dircmd/entry ]]; then
       source ${PWD}/.dircmd/entry
-      export DIRCMD_PATH="${PWD}"
+    fi
+  else
+    if [[ -e ${OLDPWD}/.dircmd/exit ]]; then
+      source ${OLDPWD}/.dircmd/exit
+    fi
+    if [[ -n "${DIRCMD_PATH}" ]]; then
+      if [[ -e ${DIRCMD_PATH}/.dircmd/exit ]]; then
+        source ${DIRCMD_PATH}/.dircmd/exit
+      fi
     fi
   fi
   return $previous_exit_status
