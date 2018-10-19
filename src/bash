@@ -2,15 +2,15 @@
 _dircmd_hook()
 {
   local previous_exit_status=$?
-  if [[ -n "${DIRCMD}" ]]; then
-    if ! echo "${PWD}" | egrep -q "^${OLDPWD}" ; then
-      if [[ -e ${OLDPWD}/.dircmd/exit ]]; then
-        source ${OLDPWD}/.dircmd/exit
-        unset DIRCMD
+  if [[ -n "${DIRCMD_PATH}" ]]; then
+    if ! echo "${PWD}" | egrep -q "^${DIRCMD_PATH}" ; then
+      if [[ -e ${DIRCMD_PATH}/.dircmd/exit ]]; then
+        source ${DIRCMD_PATH}/.dircmd/exit
+        unset DIRCMD_PATH
       fi
     fi
   fi
-  if [[ -z "${DIRCMD}" ]]; then
+  if [[ -z "${DIRCMD_PATH}" ]]; then
     if [[ "${PWD}" != "${OLDPWD}" ]]; then
       if echo "${PWD}/" | egrep -q "^${OLDPWD}" ; then
         DIR="$(dirname ${PWD})"
@@ -19,6 +19,7 @@ _dircmd_hook()
             BACK="${PWD}"
             cd ${DIR}
             source .dircmd/entry
+            export DIRCMD_PATH="${PWD}"
             cd ${BACK}
             break
           else
@@ -28,10 +29,10 @@ _dircmd_hook()
       fi
     fi
   fi
-  if [[ -z "${DIRCMD}" ]]; then
+  if [[ -z "${DIRCMD_PATH}" ]]; then
     if [[ -e ${PWD}/.dircmd/entry ]]; then
       source ${PWD}/.dircmd/entry
-      export DIRCMD="${PWD}"
+      export DIRCMD_PATH="${PWD}"
     fi
   fi
   return $previous_exit_status
