@@ -6,11 +6,9 @@ NAME="$(echo ${1} | tr '[:upper:]' '[:lower:]')"
 cd ~
 mkdir -p ${1}
 cd ${1}
-for PIPPACKAGE in virtualenv ; do
-  if ! pip3 list --format=freeze 2>&1 | egrep -q "^${PIPPACKAGE}\=\=" ; then
-    pip3 install "${PIPPACKAGE}"
-  fi
-done
+if ! pip3 list --format=freeze 2>&1 | egrep -q "^virtualenv\=\=" ; then
+  pip3 install "${PIPPACKAGE}"
+fi
 if [[ ! -d ${NAME} ]]; then
   mkdir ${2}
   cd ${2}
