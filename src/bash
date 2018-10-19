@@ -16,10 +16,8 @@ _dircmd_hook()
     fi
     if [[ -n "${DIRCMD_EXIT}" ]]; then
       for DIR in ${DIRCMD_EXIT} ; do
-         if ! echo "${PWD}" | egrep -q "^${DIR}/" ; then
-          if [[ -e ${DIR}/.dircmd/exit ]]; then
-            source ${DIR}/.dircmd/exit
-          fi
+        if ! echo "${PWD}" | egrep -q "^${DIR}/" ; then
+          source ${DIR}/.dircmd/exit
         fi
       done
       unset DIRCMD_EXIT
@@ -34,7 +32,7 @@ _dircmd_hook()
         cd ${DIR}
         source .dircmd/entry
         if [[ -e ${PWD}/.dircmd/exit ]]; then
-          export DIRCMD_EXIT="${DIRCMD_EXIT} ${PWD}"
+          export DIRCMD_EXIT="${DIRCMD_EXIT} ${PWD} "
         fi
         cd ${BACK}
         break
