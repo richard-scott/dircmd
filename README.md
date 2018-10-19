@@ -3,7 +3,7 @@ Automating repetitive tasks one directory at a time
 
 # Installation
 
-    $ curl -L https://raw.githubusercontent.com/dircmd/dircmd/master/bin/install.sh | sudo bash
+    $ curl -L https://github.com/dircmd/dircmd/raw/master/bin/install.sh | sudo bash
 
 # Usage
 
