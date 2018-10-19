@@ -1,5 +1,5 @@
 # dircmd
-Automating repetitive tasks one directory at a time.
+
 
 This utility can save you time when you need to repeat the same commands time and time again. For example, when programming in Python you may need to enable your Virtual Environment (virtualenv) each time you start writing code. For example, you may repeatidly use these commands at the start of a session:
 
@@ -14,7 +14,7 @@ Great, you are now setup to start coding. What if you want to quickly do somethi
     $ pip install <something>
     $ deactivate
     $ cd ~/my_next_great_application
-    $ source env/bin/activate
+    $ source env/bin/activa
 
 Now you can carry on where you left off, but what if you could reduce your typing down to just 42% of that. With _**dircmd**_ helping you can reduce this to just 3 commands:
 
