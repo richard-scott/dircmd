@@ -16,7 +16,7 @@ Great, you are now setup to start coding. What if you want to quickly do somethi
     $ cd ~/my_next_great_application
     $ source env/bin/activate
 
-Now you can carry on where you left off, but what if you could reduce your typing down to just 42% of that. With dircmd helping, you can reduce this to just 3 commands:
+Now you can carry on where you left off, but what if you could reduce your typing down to just 42% of that. With _**dircmd**_ helping you can reduce this to just 3 commands:
 
     $ cd ~/my_next_great_application
     $ pip install <something>
