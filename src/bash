@@ -47,7 +47,7 @@ _dircmd_hook()
 
   # Up a directory
   if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
-     _dircmd_hook_exit_find
+     _dircmd_hook_exit
 
   # Down the tree
   elif echo "${PWD}" | egrep -q "^${OLDPWD}" ; then
