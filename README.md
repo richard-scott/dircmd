@@ -22,8 +22,6 @@ Now you can carry on where you left off, but what if you could reduce your typin
     $ pip install <something>
     $ cd ~/my_next_great_application
 
-This is where _**dircmd**_ steps on to help.
-
 # Installation
 
     $ curl --location https://github.com/dircmd/dircmd/raw/master/bin/dircmd-installer | sudo bash
