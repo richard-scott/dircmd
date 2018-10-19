@@ -1,1 +1,3 @@
-source env/bin/activate
+if ! type -t deactivate 2>&1 | head -n 1 | egrep -q "^function$" ; then
+  source env/bin/activate
+fi
