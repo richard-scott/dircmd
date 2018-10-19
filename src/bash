@@ -1,0 +1,24 @@
+[[ $- == *i* ]] || return 0
+_dircmd_hook()
+{
+  local previous_exit_status=$?
+  if [[ -n "${DIRCMD}" ]]; then
+    if ! echo "$PWD" | egrep -q "^$OLDPWD/" ; then
+      if [[ -e ${OLDPWD}/.dircmd/exit ]]; then
+        source ${OLDPWD}/.dircmd/exit
+        unset DIRCMD
+      fi
+    fi
+  fi
+  if [[ -z "${DIRCMD}" ]]; then
+    if [[ -e ${PWD}/.dircmd/entry ]]; then
+      source ${PWD}/.dircmd/entry
+      export DIRCMD="${PWD}"
+    fi
+  fi
+  return $previous_exit_status
+}
+if ! [[ "$PROMPT_COMMAND" =~ _dircmd_hook ]]; then
+  PROMPT_COMMAND="_dircmd_hook;$PROMPT_COMMAND"
+fi
+
