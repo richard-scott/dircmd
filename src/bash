@@ -9,20 +9,14 @@ _dircmd_hook()
       source ${PWD}/.dircmd/entry
     fi
   }
+
   _dircmd_hook_exit()
   {
     if [[ -e ${OLDPWD}/.dircmd/exit ]]; then
       source ${OLDPWD}/.dircmd/exit
     fi
-    if [[ -n "${DIRCMD_EXIT}" ]]; then
-      for DIR in ${DIRCMD_EXIT} ; do
-        if ! echo "${PWD}" | egrep -q "^${DIR}/" ; then
-          source ${DIR}/.dircmd/exit
-        fi
-      done
-      unset DIRCMD_EXIT
-    fi
   }
+
   _dircmd_hook_entry_find()
   {
     DIR="$(dirname ${PWD})"
@@ -31,25 +25,40 @@ _dircmd_hook()
         BACK="${PWD}"
         cd ${DIR}
         source .dircmd/entry
-        if [[ -e ${PWD}/.dircmd/exit ]]; then
-          export DIRCMD_EXIT="${DIRCMD_EXIT} ${PWD} "
-        fi
         cd ${BACK}
-        break
-      else
-        DIR="$(dirname ${DIR})"
       fi
+      DIR="$(dirname ${DIR})"
     done
   }
 
+  _dircmd_hook_exit_find()
+  {
+    DIR="$(dirname ${OLDPWD})"
+    while [[ "${DIR}" != "/" ]]; do
+      if [[ -e ${DIR}/.dircmd/exit ]]; then
+        BACK="${PWD}"
+        cd ${DIR}
+        source .dircmd/exit
+        cd ${BACK}
+      fi
+      DIR="$(dirname ${DIR})"
+    done
+  }
+
+  # Up a directory
   if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
-      _dircmd_hook_exit
+     _dircmd_hook_exit_find
+
+  # Down the tree
   elif echo "${PWD}" | egrep -q "^${OLDPWD}" ; then
     _dircmd_hook_entry_find
     _dircmd_hook_entry
+
   else
+    # Out the tree
     if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
       _dircmd_hook_exit
+      _dircmd_hook_exit_find
       _dircmd_hook_entry_find
       _dircmd_hook_entry
     fi
