@@ -1,5 +1,5 @@
 # dircmd
-Automating repetitive tasks one directory at a time
+Automating repetitive tasks one directory at a time.
 
 # Installation
 
