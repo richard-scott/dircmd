@@ -1,4 +1,5 @@
-#!/bin/bash
 GIT_REPO="https://github.com/dircmd/dircmd/raw/master"
-curl --location --silent --output /etc/profile.d/dircmd.sh ${GIT_REPO}/src/bash
-sleep 2s && source /etc/profile.d/dircmd.sh &
+sudo curl --location --silent --output /etc/profile.d/dircmd.sh ${GIT_REPO}/src/bash
+mkdir ~/.dircmd
+curl --location --silent --output ~/.dircmd/entry ${GIT_REPO}/examples/helloworld/entry
+curl --location --silent --output ~/.dircmd/exit ${GIT_REPO}/examples/helloworld/exit
