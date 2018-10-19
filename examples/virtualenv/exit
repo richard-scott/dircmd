@@ -1,0 +1,4 @@
+if type -t deactivate 2>&1 | head -n 1 | egrep -q "^function$" ; then
+  deactivate
+  unset deactivate
+fi
