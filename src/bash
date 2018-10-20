@@ -3,24 +3,11 @@ _dircmd_hook()
 {
   local previous_exit_status=$?
 
-  _dircmd_hook_entry()
-  {
-    DIR="${PWD}"
-    while [[ "${DIR}" != "/" ]]; do
-      if [[ -e ${DIR}/.dircmd/entry ]]; then
-        BACK="${PWD}"
-        cd ${DIR}
-        source .dircmd/entry
-        cd ${BACK}
-      fi
-      DIR="$(dirname ${DIR})"
-    done
-  }
-
-  _dircmd_hook_exit()
-  {
+  # Up a directory
+  if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
+    #echo "UP"
     DIR="${OLDPWD}"
-    while [[ "${DIR}" != "/" ]]; do
+    while [[ "${DIR}/" != "${PWD}/" ]]; do
       if [[ -e ${DIR}/.dircmd/exit ]]; then
         BACK="${PWD}"
         cd ${DIR}
@@ -29,26 +16,40 @@ _dircmd_hook()
       fi
       DIR="$(dirname ${DIR})"
     done
-  }
-
-  # Up a directory
-  if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
-     #echo "UP"
-     _dircmd_hook_exit
-     _dircmd_hook_entry
 
   # Down the tree
   elif echo "${PWD}" | egrep -q "^${OLDPWD}" ; then
-     #echo "DOWN"
-    _dircmd_hook_entry
-
+    #echo "DOWN"
+    LIST=""
+    BACK="${PWD}"
+    while [[ "${PWD}/" != "${OLDPWD}/" ]]; do
+      if [[ -e .dircmd/entry ]]; then
+        LIST=" ${PWD}/.dircmd/entry ${LIST}"
+      fi
+      cd ..
+    done
+    for ENTRY in ${LIST} ; do
+      cd $(dirname $(dirname ${ENTRY}))
+      source .dircmd/entry
+    done
+    unset LIST
+    cd ${BACK}
   else
-    #echo "OTHER"
     # Out the tree
     if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
       #echo "OUT"
-      _dircmd_hook_exit
-      _dircmd_hook_entry
+      BACK="${PWD}"
+      DIR="$(dirname ${OLDPWD})"
+      while [[ "${DIR}" != "/" ]]; do
+        if [[ -e ${DIR}/.dircmd/exit ]]; then
+          BACK="${PWD}"
+          cd ${DIR}
+          source .dircmd/exit
+          cd ${BACK}
+        fi
+        DIR="$(dirname ${DIR})"
+      done
+      cd ${BACK}
     fi
   fi
 
