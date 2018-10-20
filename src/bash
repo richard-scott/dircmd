@@ -2,18 +2,22 @@
 _dircmd_hook()
 {
   local previous_exit_status=$?
-
+  SHM="/dev/shm/dircmd/$$"
+  mkdir -p ${SHM}
   # Up a directory
   if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
     #echo "UP"
     DIR="${OLDPWD}"
     while [[ "${DIR}/" != "${PWD}/" ]]; do
-      if [[ -e ${DIR}/.dircmd/exit ]]; then
-        BACK="${PWD}"
-        cd ${DIR}
-        source .dircmd/exit
-        cd ${BACK}
+      BACK="${PWD}"
+      cd ${DIR}
+      if [[ -d ${SHM}/${PWD} ]]; then
+        rmdir ${SHM}/${PWD}
       fi
+      if [[ -e ${DIR}/.dircmd/exit ]]; then
+        source .dircmd/exit
+      fi
+      cd ${BACK}
       DIR="$(dirname ${DIR})"
     done
 
@@ -30,7 +34,10 @@ _dircmd_hook()
     done
     for ENTRY in ${LIST} ; do
       cd $(dirname $(dirname ${ENTRY}))
-      source .dircmd/entry
+      if [[ ! -d ${SHM}/${PWD} ]]; then
+        source .dircmd/entry
+        mkdir -p ${SHM}/${PWD}
+      fi
     done
     unset LIST
     cd ${BACK}
@@ -39,14 +46,17 @@ _dircmd_hook()
     if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
       #echo "OUT"
       BACK="${PWD}"
-      DIR="$(dirname ${OLDPWD})"
+      DIR="${OLDPWD}"
       while [[ "${DIR}" != "/" ]]; do
-        if [[ -e ${DIR}/.dircmd/exit ]]; then
-          BACK="${PWD}"
-          cd ${DIR}
-          source .dircmd/exit
-          cd ${BACK}
+        BACK="${PWD}"
+        cd ${DIR}
+        if [[ -d ${SHM}/${PWD} ]]; then
+          rmdir ${SHM}/${PWD}
         fi
+        if [[ -e ${DIR}/.dircmd/exit ]]; then
+          source .dircmd/exit
+        fi
+        cd ${BACK}
         DIR="$(dirname ${DIR})"
       done
       cd ${BACK}
