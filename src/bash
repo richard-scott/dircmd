@@ -11,10 +11,10 @@ _dircmd_hook()
       BACK="${PWD}"
       cd ${DIR}
       if [[ -d ${SHM}/${PWD} ]]; then
+        if [[ -e ${DIR}/.dircmd/exit ]]; then
+          source .dircmd/exit
+        fi
         rmdir ${SHM}/${PWD}
-      fi
-      if [[ -e ${DIR}/.dircmd/exit ]]; then
-        source .dircmd/exit
       fi
       cd ${BACK}
       DIR="$(dirname ${DIR})"
@@ -26,15 +26,17 @@ _dircmd_hook()
     BACK="${PWD}"
     while [[ "${PWD}/" != "${OLDPWD}/" ]]; do
       if [[ -e .dircmd/entry ]]; then
-        LIST=" ${PWD}/.dircmd/entry ${LIST}"
+        LIST="${PWD}/.dircmd/entry ${LIST}"
       fi
       cd ..
     done
     for ENTRY in ${LIST} ; do
       cd $(dirname $(dirname ${ENTRY}))
       if [[ ! -d ${SHM}/${PWD} ]]; then
-        source .dircmd/entry
-        mkdir -p ${SHM}/${PWD}
+        if [[ -e .dircmd/entry ]]; then
+          source .dircmd/entry
+          mkdir -p ${SHM}/${PWD}
+        fi
       fi
     done
     unset LIST
@@ -48,10 +50,10 @@ _dircmd_hook()
         BACK="${PWD}"
         cd ${DIR}
         if [[ -d ${SHM}/${PWD} ]]; then
+          if [[ -e ${DIR}/.dircmd/exit ]]; then
+            source .dircmd/exit
+          fi
           rmdir ${SHM}/${PWD}
-        fi
-        if [[ -e ${DIR}/.dircmd/exit ]]; then
-          source .dircmd/exit
         fi
         cd ${BACK}
         DIR="$(dirname ${DIR})"
