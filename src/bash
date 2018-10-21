@@ -11,7 +11,6 @@ _dircmd_hook()
   local previous_exit_status=$?
   SHM="/dev/shm/dircmd/$$"
   if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
-    #echo "UP"
     DIR="${OLDPWD}"
     while [[ "${DIR}/" != "${PWD}/" ]]; do
       BACK="${PWD}"
@@ -26,7 +25,6 @@ _dircmd_hook()
       DIR="$(dirname ${DIR})"
     done
   elif echo "${PWD}" | egrep -q "^${OLDPWD}" ; then
-    #echo "DOWN"
     LIST=""
     BACK="${PWD}"
     while [[ "${PWD}/" != "${OLDPWD}/" ]]; do
@@ -48,7 +46,6 @@ _dircmd_hook()
     cd ${BACK}
   else
     if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
-      #echo "OUT"
       BACK="${PWD}"
       DIR="${OLDPWD}"
       while [[ "${DIR}" != "/" ]]; do
