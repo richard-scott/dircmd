@@ -5,7 +5,7 @@ _dircmd_hook()
   SHM="/dev/shm/dircmd/$$"
   mkdir -p ${SHM}
   if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
-    # Up a directory
+    #echo "UP"
     DIR="${OLDPWD}"
     while [[ "${DIR}/" != "${PWD}/" ]]; do
       BACK="${PWD}"
@@ -19,9 +19,8 @@ _dircmd_hook()
       cd ${BACK}
       DIR="$(dirname ${DIR})"
     done
-
   elif echo "${PWD}" | egrep -q "^${OLDPWD}" ; then
-    # Down the tree
+    #echo "DOWN"
     LIST=""
     BACK="${PWD}"
     while [[ "${PWD}/" != "${OLDPWD}/" ]]; do
@@ -43,7 +42,7 @@ _dircmd_hook()
     cd ${BACK}
   else
     if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
-      # Out the tree
+      #echo "OUT"
       BACK="${PWD}"
       DIR="${OLDPWD}"
       while [[ "${DIR}" != "/" ]]; do
@@ -59,9 +58,27 @@ _dircmd_hook()
         DIR="$(dirname ${DIR})"
       done
       cd ${BACK}
+      LIST=""
+      BACK="${PWD}"
+      while [[ "${PWD}/" != "//" ]]; do
+        if [[ -e .dircmd/entry ]]; then
+          LIST="${PWD}/.dircmd/entry ${LIST}"
+        fi
+        cd ..
+      done
+      for ENTRY in ${LIST} ; do
+        cd $(dirname $(dirname ${ENTRY}))
+        if [[ ! -d ${SHM}/${PWD} ]]; then
+          if [[ -e .dircmd/entry ]]; then
+            source .dircmd/entry
+            mkdir -p ${SHM}/${PWD}
+          fi
+        fi
+      done
+      unset LIST
+      cd ${BACK}
     fi
   fi
-
   return $previous_exit_status
 }
 if ! [[ "${PROMPT_COMMAND}" =~ _dircmd_hook ]]; then
