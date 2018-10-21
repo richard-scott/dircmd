@@ -1,11 +1,15 @@
 [[ $- == *i* ]] || return 0
-DIRCMD_SHM="/dev/shm/dircmd/$$"
+DIRCMD_SHM="/dev/shm/dircmd-${USER}-$$"
+if [[ -d ${DIRCMD_SHM} ]]; then
+  rm -rf ${DIRCMD_SHM}
+fi
+mkdir -p ${DIRCMD_SHM}
+chmod go=-rwx ${DIRCMD_SHM}
 trap "rm -rf ${DIRCMD_SHM}" EXIT
 _dircmd_hook()
 {
   local previous_exit_status=$?
   SHM="/dev/shm/dircmd/$$"
-  mkdir -p ${DIRCMD_SHM}
   if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
     #echo "UP"
     DIR="${OLDPWD}"
