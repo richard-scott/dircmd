@@ -1,2 +1,12 @@
 deactivate
 unset deactivate
+if type deactivate 2>/dev/null | head -n 1 | grep -q "function$" ; then
+  deactivate
+  unset deactivate
+fi
+if [ -n "${OLDPIP}" ]; then
+  eval "$(echo ${OLDPIP} | base64 --decode)"
+  unset OLDPIP
+else
+  unalias pip
+fi

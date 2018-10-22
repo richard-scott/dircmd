@@ -1,1 +1,3 @@
 source env/bin/activate
+[ -n "$(alias pip)" ] && OLDPIP="$(alias pip | base64)"
+alias pip='pip --no-cache-dir'
