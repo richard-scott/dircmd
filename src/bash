@@ -30,6 +30,9 @@ _dircmd_hook()
         fi
         cd ..
       done
+      if [[ ! -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e .dircmd/entry ]]; then
+        LIST="${PWD} ${LIST}"
+      fi
       for ENTRY in ${LIST} ; do
         cd ${ENTRY}
         if [[ ! -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e .dircmd/entry ]]; then
@@ -42,7 +45,7 @@ _dircmd_hook()
     else
       if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
         DIR="${OLDPWD}"
-        if echo "${OLDPWD}" | egrep -q "^${HOME}/" ; then
+        if echo "${OLDPWD}/" | egrep -q "^${HOME}/" ; then
           ROOT="${HOME}"
         else
           ROOT="/"
