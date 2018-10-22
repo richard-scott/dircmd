@@ -4,3 +4,8 @@ mkdir ~/.dircmd
 curl --location --silent --output ~/.dircmd/entry ${GIT_REPO}/examples/helloworld/entry
 curl --location --silent --output ~/.dircmd/exit ${GIT_REPO}/examples/helloworld/exit
 chown -R $(stat $HOME --format "%U:%G") ~/.dircmd
+echo ""
+echo "Type this to activate:"
+echo "  source /etc/profile.d/dircmd.sh"
+
+
