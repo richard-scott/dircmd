@@ -5,7 +5,8 @@ curl --location --silent --output ~/.dircmd/entry ${GIT_REPO}/examples/helloworl
 curl --location --silent --output ~/.dircmd/exit ${GIT_REPO}/examples/helloworld/exit
 chown -R $(stat $HOME --format "%U:%G") ~/.dircmd
 echo ""
-echo "Log out and back in to activate or run these commands:"
-echo "source /etc/profile.d/dircmd.sh; cd ..; cd"
+echo ">>> Log out and back in to activate or run these commands <<<"
+echo "    source /etc/profile.d/dircmd.sh ; cd .. ; cd"
+echo ""
 
 
