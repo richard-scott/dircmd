@@ -42,7 +42,12 @@ _dircmd_hook()
     else
       if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
         DIR="${OLDPWD}"
-        while [[ "${DIR}" != "/" ]]; do
+        if echo "${OLDPWD}" | egrep -q "^${HOME}/" ; then
+          ROOT="${HOME}"
+        else
+          ROOT="/"
+        fi
+        while [[ "${DIR}" != "${ROOT}" ]]; do
           BACK="${PWD}"
           cd ${DIR}
           if [[ -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e .dircmd/exit ]]; then
