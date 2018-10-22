@@ -1,4 +1,3 @@
-[[ $- == *i* ]] || return 0
 DIRCMD_SHM="/dev/shm/dircmd-${USER}-$$"
 if [[ -d ${DIRCMD_SHM} ]]; then
   rm -rf ${DIRCMD_SHM}
@@ -9,16 +8,13 @@ trap "rm -rf ${DIRCMD_SHM}" EXIT
 _dircmd_hook()
 {
   local previous_exit_status=$?
-  SHM="/dev/shm/dircmd/$$"
   if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
     DIR="${OLDPWD}"
     while [[ "${DIR}/" != "${PWD}/" ]]; do
       BACK="${PWD}"
       cd ${DIR}
-      if [[ -d ${DIRCMD_SHM}/${PWD} ]]; then
-        if [[ -e ${DIR}/.dircmd/exit ]]; then
-          source .dircmd/exit
-        fi
+      if [[ -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e ${DIR}/.dircmd/exit ]]; then
+        source .dircmd/exit
         rmdir ${DIRCMD_SHM}/${PWD}
       fi
       cd ${BACK}
@@ -29,53 +25,45 @@ _dircmd_hook()
     BACK="${PWD}"
     while [[ "${PWD}/" != "${OLDPWD}/" ]]; do
       if [[ -e .dircmd/entry ]]; then
-        LIST="${PWD}/.dircmd/entry ${LIST}"
+        LIST="${PWD} ${LIST}"
       fi
       cd ..
     done
     for ENTRY in ${LIST} ; do
-      cd $(dirname $(dirname ${ENTRY}))
-      if [[ ! -d ${DIRCMD_SHM}/${PWD} ]]; then
-        if [[ -e .dircmd/entry ]]; then
-          source .dircmd/entry
-          mkdir -p ${DIRCMD_SHM}/${PWD}
-        fi
+      cd ${ENTRY}
+      if [[ ! -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e .dircmd/entry ]]; then
+        source .dircmd/entry
+        mkdir -p ${DIRCMD_SHM}/${PWD}
       fi
     done
     unset LIST
     cd ${BACK}
   else
     if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
-      BACK="${PWD}"
       DIR="${OLDPWD}"
       while [[ "${DIR}" != "/" ]]; do
         BACK="${PWD}"
         cd ${DIR}
-        if [[ -d ${DIRCMD_SHM}/${PWD} ]]; then
-          if [[ -e ${DIR}/.dircmd/exit ]]; then
-            source .dircmd/exit
-          fi
+        if [[ -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e .dircmd/exit ]]; then
+          source .dircmd/exit
           rmdir ${DIRCMD_SHM}/${PWD}
         fi
         cd ${BACK}
         DIR="$(dirname ${DIR})"
       done
-      cd ${BACK}
       LIST=""
       BACK="${PWD}"
       while [[ "${PWD}/" != "//" ]]; do
         if [[ -e .dircmd/entry ]]; then
-          LIST="${PWD}/.dircmd/entry ${LIST}"
+          LIST="${PWD} ${LIST}"
         fi
         cd ..
       done
       for ENTRY in ${LIST} ; do
-        cd $(dirname $(dirname ${ENTRY}))
-        if [[ ! -d ${DIRCMD_SHM}/${PWD} ]]; then
-          if [[ -e .dircmd/entry ]]; then
-            source .dircmd/entry
-            mkdir -p ${DIRCMD_SHM}/${PWD}
-          fi
+        cd ${ENTRY}
+        if [[ ! -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e .dircmd/entry ]]; then
+          source .dircmd/entry
+          mkdir -p ${DIRCMD_SHM}/${PWD}
         fi
       done
       unset LIST
