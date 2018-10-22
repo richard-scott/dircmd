@@ -28,8 +28,6 @@ Now you can carry on where you left off, but what if you could reduce your typin
 
 # Usage
 
-After installation you will find a new _**~/.dircmd**_ directory and inside that directory some example files from [Helloworld](https://github.com/dircmd/dircmd/tree/master/examples/helloworld).
-
-Log out, and log back in and you'll get a nice new welcome message each time you go to your $HOME directory. Edit _**~/.dircmd/entry**_ and _**~/.dircmd/exit**_ to your needs and everytime you go to $HOME they will be loaded.
+After installation you will find a new _**~/.dircmd**_ directory and inside that directory some [example](https://github.com/dircmd/dircmd/tree/master/examples/helloworld) files. Log out, and log back in and you'll get a nice new welcome message each time you go to your $HOME directory. Edit _**~/.dircmd/entry**_ and _**~/.dircmd/exit**_ to your needs and everytime you go to $HOME they will be loaded.
 
 You can create a _**.dircmd**_ directory anywhere on your system and then add _entry/exit_ files that will be used by _any_ user to traverse that location.
