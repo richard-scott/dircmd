@@ -8,6 +8,7 @@ trap "rm -rf ${DIRCMD_SHM}" EXIT
 _dircmd_hook()
 {
   local previous_exit_status=$?
+  local BACK DIR LIST ROOT
   if [[ -d "${OLDPWD}" ]]; then
     if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
       DIR="${OLDPWD}"
