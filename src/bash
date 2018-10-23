@@ -86,4 +86,3 @@ _dircmd_hook()
 if ! [[ "${PROMPT_COMMAND}" =~ _dircmd_hook ]]; then
   PROMPT_COMMAND="_dircmd_hook;${PROMPT_COMMAND}"
 fi
-
