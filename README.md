@@ -22,11 +22,11 @@ Now you can carry on where you left off, but what if you could reduce your typin
     $ pip install <something>
     $ cd ~/my_next_great_application
 
-# Installation
+## Installation
 
     $ curl --location https://github.com/dircmd/dircmd/raw/master/bin/dircmd-installer | sudo bash
 
-## Usage
+### Usage
 
 After installation you will find a new _**~/.dircmd**_ directory with some [example](https://github.com/dircmd/dircmd/tree/master/examples/helloworld) files.
 
