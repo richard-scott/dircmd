@@ -26,11 +26,13 @@ Now you can carry on where you left off, but what if you could reduce your typin
 
     $ curl --location https://github.com/dircmd/dircmd/raw/master/bin/dircmd-installer | sudo bash
 
-# Usage
+## Usage
 
 After installation you will find a new _**~/.dircmd**_ directory with some [example](https://github.com/dircmd/dircmd/tree/master/examples/helloworld) files.
 
-## Activation
+### Activation
+
+You can activate the utility right now with the following command, or just log out and log back in again.
 
     $ source /etc/profile.d/dircmd.sh
 
