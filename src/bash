@@ -15,8 +15,10 @@ _dircmd_hook()
       while [[ "${DIR}/" != "${PWD}/" ]]; do
         BACK="${PWD}"
         cd ${DIR}
-        if [[ -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e ${DIR}/.dircmd/exit ]]; then
-          source .dircmd/exit
+        if [[ -d ${DIRCMD_SHM}/${PWD} ]]; then
+          if [[ -e ${DIR}/.dircmd/exit ]]; then
+            source .dircmd/exit
+          fi
           rmdir ${DIRCMD_SHM}/${PWD}
         fi
         cd ${BACK}
@@ -54,8 +56,10 @@ _dircmd_hook()
         while [[ "${DIR}" != "${ROOT}" ]]; do
           BACK="${PWD}"
           cd ${DIR}
-          if [[ -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e .dircmd/exit ]]; then
-            source .dircmd/exit
+          if [[ -d ${DIRCMD_SHM}/${PWD} ]]; then
+            if [[ -e .dircmd/exit ]]; then
+              source .dircmd/exit
+            fi
             rmdir ${DIRCMD_SHM}/${PWD}
           fi
           cd ${BACK}
