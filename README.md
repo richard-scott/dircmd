@@ -1,7 +1,7 @@
 # dircmd
 
 
-This utility can save you time when you need to repeat the same commands time and time again. For example, when programming in Python you may need to enable your Virtual Environment (virtualenv) each time you start writing code. For example, you may repeatidly use these commands at the start of a session:
+**_dircmd_** can save you time when you need to repeat the same commands time and time again. For example, when programming in Python you may need to enable your Virtual Environment (virtualenv) each time you start writing code. For example, you may repeatidly use these commands at the start of a session:
 
     $ cd ~/my_next_great_application
     $ source env/bin/activate
