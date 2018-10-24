@@ -23,6 +23,7 @@ _dircmd_hook()
       fi
       cd ..
     done
+    cd ${CURRENT}
   }
   _dircmd_entry()
   {
@@ -44,6 +45,7 @@ _dircmd_hook()
         mkdir -p ${DIRCMD_SHM}${PWD}
       fi
     done
+    cd ${CURRENT}
   }
   if [[ -d "${LAST}" ]]; then
     if echo "${LAST}" | egrep -q "^${CURRENT}$" ;then
@@ -57,13 +59,13 @@ _dircmd_hook()
         if echo "${LAST}" | egrep -q "^${CURRENT}/" ;then # up
           _dircmd_exit "${CURRENT}"
         else
-          if echo "$(dirname ${LAST})" | egrep -q "^$(dirname ${CURRENT})$" ; then #cross
+          if echo "$(dirname ${LAST})" | egrep -q "^$(dirname ${CURRENT})$" ; then # cross
             _dircmd_exit "$(dirname ${CURRENT})"
-            cd ${CURRENT}
+            #cd ${CURRENT}
             _dircmd_entry "${CURRENT}"
-          else # out
+          else
             _dircmd_exit "/"
-            cd ${CURRENT}
+            #cd ${CURRENT}
             _dircmd_entry "${CURRENT}"
           fi
         fi
@@ -75,7 +77,7 @@ _dircmd_hook()
     fi
   fi
   export OLDPWD="${LAST}"
-  cd ${CURRENT}
+  #cd ${CURRENT}
   return $previous_exit_status
 }
 if ! [[ "${PROMPT_COMMAND}" =~ _dircmd_hook ]]; then
