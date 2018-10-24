@@ -16,7 +16,6 @@ _dircmd_hook()
   CURRENT="${PWD}"
   _dircmd_exit()
   {
-    #set -x
     cd "${LAST}"
     while [[ "${PWD}/" != "${1}/" ]]; do
       if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
@@ -26,12 +25,11 @@ _dircmd_hook()
         rmdir "${DIRCMD_SHM}${PWD}"
       fi
       cd ..
-      if [[ "${OLDPWD}" == "${PWD}" ]]; then
+      if ! echo "${PWD}/" | egrep -q "^//" ; then
         break
       fi
     done
     cd "${CURRENT}"
-    #set +x
   }
   _dircmd_entry()
   {
@@ -46,7 +44,7 @@ _dircmd_hook()
       LIST[${#LIST[@]}]="${PWD}"
     fi
     for (( i=0 ; i < ${#LIST[@]}; i++ )); do
-      cd "${LIST[${i}]}" 2>/dev/null
+      cd "${LIST[${i}]}"
       if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
         if [[ -e .dircmd/entry ]]; then
           source .dircmd/entry
