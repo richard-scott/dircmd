@@ -11,85 +11,70 @@ _dircmd_hook()
   local LAST CURRENT BACK DIR LIST ROOT
   LAST="${OLDPWD}"
   CURRENT="${PWD}"
-  if [[ -d "${OLDPWD}" ]]; then
-    if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
-      DIR="${OLDPWD}"
-      while [[ "${DIR}/" != "${PWD}/" ]]; do
-        BACK="${PWD}"
-        cd ${DIR}
-        if [[ -d ${DIRCMD_SHM}${PWD} ]]; then
-          if [[ -e .dircmd/exit ]]; then
-            source .dircmd/exit
-          fi
-          rmdir ${DIRCMD_SHM}${PWD}
+  _dircmd_exit()
+  {
+    cd ${LAST}
+    while [[ "${PWD}/" != "${1}/" ]]; do
+      if [[ -d ${DIRCMD_SHM}${PWD} ]]; then
+        if [[ -e .dircmd/exit ]]; then
+          source .dircmd/exit
         fi
-        cd ${BACK}
-        DIR="$(dirname ${DIR})"
-      done
-    elif echo "${PWD}" | egrep -q "^${OLDPWD}" ; then
-      LIST=""
-      BACK="${PWD}"
-      while [[ "${PWD}/" != "${OLDPWD}/" ]]; do
-        LIST="${PWD} ${LIST}"
-        cd ..
-      done
-      if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
+        rmdir ${DIRCMD_SHM}${PWD}
+      fi
+      cd ..
+    done
+  }
+  _dircmd_entry()
+  {
+    while [[ "${PWD}/" != "${1}/" ]]; do
+      if [[ -d .dircmd ]]; then
         LIST="${PWD} ${LIST}"
       fi
-      for ENTRY in ${LIST} ; do
-        cd ${ENTRY}
-        if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
-          if [[ -e .dircmd/entry ]]; then
-            source .dircmd/entry
-          fi
-          mkdir -p ${DIRCMD_SHM}${PWD}
+      cd ..
+    done
+    if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
+      LIST="${PWD} ${LIST}"
+    fi
+    for ENTRY in ${LIST} ; do
+      cd ${ENTRY}
+      if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
+        if [[ -e .dircmd/entry ]]; then
+          source .dircmd/entry
         fi
-      done
-      unset LIST
-      cd ${BACK}
+        mkdir -p ${DIRCMD_SHM}${PWD}
+      fi
+    done
+  }
+  if [[ -d "${LAST}" ]]; then
+    if echo "${LAST}" | egrep -q "^${CURRENT}$" ;then
+      if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then # same
+        _dircmd_entry "/"
+      fi
     else
-      if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
-        DIR="${OLDPWD}"
-        if echo "${OLDPWD}/" | egrep -q "^${HOME}/" ; then
-          ROOT="$(dirname ${HOME})"
+      if echo "${CURRENT}/" | egrep -q "^${LAST}/" ;then # down
+        _dircmd_entry "${LAST}"
+      else
+        if echo "${LAST}" | egrep -q "^${CURRENT}/" ;then # up
+          _dircmd_exit "${CURRENT}"
         else
-          ROOT="/"
+          if echo "$(dirname ${LAST})" | egrep -q "^$(dirname ${CURRENT})$" ; then #cross
+            _dircmd_exit "$(dirname ${CURRENT})"
+            cd ${CURRENT}
+            _dircmd_entry "${CURRENT}"
+          else # out
+            _dircmd_exit "/"
+            cd ${CURRENT}
+            _dircmd_entry "${CURRENT}"
+          fi
         fi
-        while [[ "${DIR}" != "${ROOT}" ]]; do
-          BACK="${PWD}"
-          cd ${DIR}
-          if [[ -d ${DIRCMD_SHM}${PWD} ]]; then
-            if [[ -e .dircmd/exit ]]; then
-              source .dircmd/exit
-            fi
-            rmdir ${DIRCMD_SHM}${PWD}
-          fi
-          cd ${BACK}
-          DIR="$(dirname ${DIR})"
-        done
-        LIST=""
-        BACK="${PWD}"
-        while [[ "${PWD}/" != "//" ]]; do
-          if [[ -e .dircmd/entry ]] || [[ -e .dircmd/exit ]]; then
-            LIST="${PWD} ${LIST}"
-          fi
-          cd ..
-        done
-        for ENTRY in ${LIST} ; do
-          cd ${ENTRY}
-          if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
-            if [[ -e .dircmd/entry ]]; then
-              source .dircmd/entry
-            fi
-            mkdir -p ${DIRCMD_SHM}${PWD}
-          fi
-        done
-        unset LIST
-        cd ${BACK}
       fi
     fi
+  else
+    if [[ -d ${DIRCMD_SHM}${PWD} ]]; then
+      rmdir ${DIRCMD_SHM}${PWD}
+    fi
   fi
-  cd ${LAST}
+  export OLDPWD="${LAST}"
   cd ${CURRENT}
   return $previous_exit_status
 }
