@@ -4,7 +4,7 @@ if [[ -d ${DIRCMD_SHM} ]]; then
 fi
 mkdir -p ${DIRCMD_SHM}
 chmod go=-rwx ${DIRCMD_SHM}
-trap "rm -rf ${DIRCMD_SHM}" EXIT
+trap "rm -rf ${DIRCMD_SHM}; $(trap -p 'EXIT' |  awk -F\' '{print $2}')" EXIT
 _dircmd_hook()
 {
   local previous_exit_status=$?
