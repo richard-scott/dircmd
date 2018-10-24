@@ -8,18 +8,20 @@ trap "rm -rf ${DIRCMD_SHM}" EXIT
 _dircmd_hook()
 {
   local previous_exit_status=$?
-  local BACK DIR LIST ROOT
+  local LAST CURRENT BACK DIR LIST ROOT
+  LAST="${OLDPWD}"
+  CURRENT="${PWD}"
   if [[ -d "${OLDPWD}" ]]; then
     if echo "${OLDPWD}" | egrep -q "^${PWD}/" ; then
       DIR="${OLDPWD}"
       while [[ "${DIR}/" != "${PWD}/" ]]; do
         BACK="${PWD}"
         cd ${DIR}
-        if [[ -d ${DIRCMD_SHM}/${PWD} ]]; then
-          if [[ -e ${DIR}/.dircmd/exit ]]; then
+        if [[ -d ${DIRCMD_SHM}${PWD} ]]; then
+          if [[ -e .dircmd/exit ]]; then
             source .dircmd/exit
           fi
-          rmdir ${DIRCMD_SHM}/${PWD}
+          rmdir ${DIRCMD_SHM}${PWD}
         fi
         cd ${BACK}
         DIR="$(dirname ${DIR})"
@@ -28,19 +30,19 @@ _dircmd_hook()
       LIST=""
       BACK="${PWD}"
       while [[ "${PWD}/" != "${OLDPWD}/" ]]; do
-        if [[ -e .dircmd/entry ]]; then
-          LIST="${PWD} ${LIST}"
-        fi
+        LIST="${PWD} ${LIST}"
         cd ..
       done
-      if [[ ! -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e .dircmd/entry ]]; then
+      if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
         LIST="${PWD} ${LIST}"
       fi
       for ENTRY in ${LIST} ; do
         cd ${ENTRY}
-        if [[ ! -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e .dircmd/entry ]]; then
-          source .dircmd/entry
-          mkdir -p ${DIRCMD_SHM}/${PWD}
+        if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
+          if [[ -e .dircmd/entry ]]; then
+            source .dircmd/entry
+          fi
+          mkdir -p ${DIRCMD_SHM}${PWD}
         fi
       done
       unset LIST
@@ -49,18 +51,18 @@ _dircmd_hook()
       if ! echo "${OLDPWD}" | egrep -q "^${PWD}$" ; then
         DIR="${OLDPWD}"
         if echo "${OLDPWD}/" | egrep -q "^${HOME}/" ; then
-          ROOT="${HOME}"
+          ROOT="$(dirname ${HOME})"
         else
           ROOT="/"
         fi
         while [[ "${DIR}" != "${ROOT}" ]]; do
           BACK="${PWD}"
           cd ${DIR}
-          if [[ -d ${DIRCMD_SHM}/${PWD} ]]; then
+          if [[ -d ${DIRCMD_SHM}${PWD} ]]; then
             if [[ -e .dircmd/exit ]]; then
               source .dircmd/exit
             fi
-            rmdir ${DIRCMD_SHM}/${PWD}
+            rmdir ${DIRCMD_SHM}${PWD}
           fi
           cd ${BACK}
           DIR="$(dirname ${DIR})"
@@ -68,16 +70,18 @@ _dircmd_hook()
         LIST=""
         BACK="${PWD}"
         while [[ "${PWD}/" != "//" ]]; do
-          if [[ -e .dircmd/entry ]]; then
+          if [[ -e .dircmd/entry ]] || [[ -e .dircmd/exit ]]; then
             LIST="${PWD} ${LIST}"
           fi
           cd ..
         done
         for ENTRY in ${LIST} ; do
           cd ${ENTRY}
-          if [[ ! -d ${DIRCMD_SHM}/${PWD} ]] && [[ -e .dircmd/entry ]]; then
-            source .dircmd/entry
-            mkdir -p ${DIRCMD_SHM}/${PWD}
+          if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
+            if [[ -e .dircmd/entry ]]; then
+              source .dircmd/entry
+            fi
+            mkdir -p ${DIRCMD_SHM}${PWD}
           fi
         done
         unset LIST
@@ -85,6 +89,8 @@ _dircmd_hook()
       fi
     fi
   fi
+  cd ${LAST}
+  cd ${CURRENT}
   return $previous_exit_status
 }
 if ! [[ "${PROMPT_COMMAND}" =~ _dircmd_hook ]]; then
