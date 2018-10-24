@@ -1,4 +1,4 @@
-#
+ #
 # https://github.com/dircmd/dircmd
 #
 DIRCMD_SHM="/dev/shm/dircmd-${USER}-$$"
@@ -16,44 +16,49 @@ _dircmd_hook()
   CURRENT="${PWD}"
   _dircmd_exit()
   {
-    cd ${LAST}
+    #set -x
+    cd "${LAST}"
     while [[ "${PWD}/" != "${1}/" ]]; do
-      if [[ -d ${DIRCMD_SHM}${PWD} ]]; then
+      if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
         if [[ -e .dircmd/exit ]]; then
           source .dircmd/exit
         fi
-        rmdir ${DIRCMD_SHM}${PWD}
+        rmdir "${DIRCMD_SHM}${PWD}"
       fi
       cd ..
+      if [[ "${OLDPWD}" == "${PWD}" ]]; then
+        break
+      fi
     done
-    cd ${CURRENT}
+    cd "${CURRENT}"
+    #set +x
   }
   _dircmd_entry()
   {
     local LIST
     while [[ "${PWD}/" != "${1}/" ]]; do
       if [[ -d .dircmd ]]; then
-        LIST="${PWD} ${LIST}"
+        LIST[${#LIST[@]}]="${PWD}"
       fi
       cd ..
     done
-    if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
-      LIST="${PWD} ${LIST}"
+    if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
+      LIST[${#LIST[@]}]="${PWD}"
     fi
-    for ENTRY in ${LIST} ; do
-      cd ${ENTRY}
-      if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
+    for (( i=0 ; i < ${#LIST[@]}; i++ )); do
+      cd "${LIST[${i}]}" 2>/dev/null
+      if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
         if [[ -e .dircmd/entry ]]; then
           source .dircmd/entry
         fi
-        mkdir -p ${DIRCMD_SHM}${PWD}
+        mkdir -p "${DIRCMD_SHM}${PWD}"
       fi
     done
-    cd ${CURRENT}
+    cd "${CURRENT}"
   }
   if [[ -d "${LAST}" ]]; then
     if echo "${LAST}" | egrep -q "^${CURRENT}$" ;then
-      if [[ ! -d ${DIRCMD_SHM}${PWD} ]]; then
+      if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
         _dircmd_entry "/"
       fi
     else
@@ -74,8 +79,8 @@ _dircmd_hook()
       fi
     fi
   else
-    if [[ -d ${DIRCMD_SHM}${PWD} ]]; then
-      rmdir ${DIRCMD_SHM}${PWD}
+    if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
+      rmdir "${DIRCMD_SHM}${PWD}"
     fi
   fi
   export OLDPWD="${LAST}"
