@@ -4,7 +4,7 @@ if [[ -d ${DIRCMD_SHM} ]]; then
 fi
 mkdir -p ${DIRCMD_SHM}
 chmod go=-rwx ${DIRCMD_SHM}
-TRAP="$(trap -p 'EXIT' | cut -d "'" -f 2- | awk -F "'" '{print $(NF-1)}')"
+TRAP="$(trap -p 'EXIT' | cut -d "'" -f 2- | awk -F "'" '{ if (NF >= 2) print $(NF-1); } ')"
 if [[ -n "${TRAP}" ]]; then
    TRAP="${TRAP};"
 fi
