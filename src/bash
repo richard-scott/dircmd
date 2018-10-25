@@ -7,7 +7,8 @@ if [[ -d ${DIRCMD_SHM} ]]; then
 fi
 mkdir -p ${DIRCMD_SHM}
 chmod go=-rwx ${DIRCMD_SHM}
-trap "$(trap -p 'EXIT' | cut -d "'" -f 2- | awk -F "'" '{ if (NF >= 2) printf("%s; ",$(NF-1)); }')rm -rf ${DIRCMD_SHM}" EXIT
+trap "$(trap -p 'EXIT' | cut -d "'" -f 2- \
+  | awk -F "'" '{ if (NF >= 2) printf("%s; ",$(NF-1)); }')rm -rf ${DIRCMD_SHM}" EXIT
 _dircmd_hook()
 {
   local previous_exit_status=$?
