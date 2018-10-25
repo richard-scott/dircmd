@@ -25,7 +25,7 @@ _dircmd_hook()
         rmdir "${DIRCMD_SHM}${PWD}"
       fi
       cd ..
-      if echo "${PWD}/" | egrep -q "^//$" ; then
+      if ! echo "${PWD}/" | egrep -q "^//$" ; then
         break
       fi
     done
