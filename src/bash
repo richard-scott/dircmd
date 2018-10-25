@@ -75,13 +75,16 @@ _dircmd_hook()
   }
   if [[ -d "${LAST}" ]]; then
     if echo "${LAST}" | egrep -q "^${CURRENT}$" ;then
+      # Staying in same directory.
       if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
         _dircmd_entry "$(_dircmd_compare)"
       fi
     else
       if echo "${CURRENT}/" | egrep -q "^${LAST}/" ;then
+        # Moving into a sub directory.
         _dircmd_entry "${LAST}"
       else
+        # Going up to a parent directory or out the tree.
         _dircmd_exit "$(_dircmd_compare)"
         _dircmd_entry "${CURRENT}"
       fi
