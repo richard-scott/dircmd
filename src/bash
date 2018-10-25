@@ -62,6 +62,7 @@ _dircmd_hook()
   }
   _dircmd_compare()
   {
+    local DIR1 DIR2
     DIR1="${LAST}"
     DIR2="${CURRENT}"
     while ! echo "${DIR2}" | egrep -q "^${DIR1}" ; do
@@ -90,7 +91,6 @@ _dircmd_hook()
       rmdir "${DIRCMD_SHM}${PWD}"
     fi
   fi
-  export OLDPWD="${LAST}"
   return $previous_exit_status
 }
 if ! [[ "${PROMPT_COMMAND}" =~ _dircmd_hook ]]; then
