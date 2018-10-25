@@ -1,12 +1,12 @@
 # dircmd
 
 
-**_dircmd_** can save you time when you need to repeat the same commands time and time again. For example, when programming in Python you may need to enable your Virtual Environment (virtualenv) each time you start writing code. For example, you may repeatidly use these commands at the start of a session:
+**_dircmd_** can save you time when you need to repeat the same commands time and time again. For example, when programming in Python you may need to enable your Virtual Environment (virtualenv) each time you start writing or testing code. For example, you may repeatidly use these commands at the start of a session:
 
     $ cd ~/my_next_great_application
     $ source env/bin/activate
 
-Great, you are now setup to start coding. What if you want to quickly do something else in Python somewhere on the system outside of your current Virtual Environment. Say you need to install a pip package in an old application codebase. You would need to do the following:
+Great, you are now setup to start coding. What if you want to quickly do something else in another Python environment. For example, lets say you need to install a pip package in an old application codebase. You would need to do the following:
 
     $ deactivate
     $ cd ~/my_previous_great_application
@@ -14,7 +14,7 @@ Great, you are now setup to start coding. What if you want to quickly do somethi
     $ pip install <something>
     $ deactivate
     $ cd ~/my_next_great_application
-    $ source env/bin/activa
+    $ source env/bin/activate
 
 Now you can carry on where you left off, but what if you could reduce your typing down to just 42% of that. With _**dircmd**_ helping you can reduce this to just 3 commands:
 
