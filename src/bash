@@ -1,4 +1,4 @@
- #
+#
 # https://github.com/dircmd/dircmd
 #
 DIRCMD_SHM="/dev/shm/dircmd-${USER}-$$"
@@ -14,27 +14,32 @@ _dircmd_hook()
   local LAST CURRENT
   LAST="${OLDPWD}"
   CURRENT="${PWD}"
+  _dircmd_run_exit()
+  {
+    if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
+      if [[ -e .dircmd/exit ]]; then
+        source .dircmd/exit
+      fi
+      rmdir "${DIRCMD_SHM}${PWD}"
+    fi
+  }
   _dircmd_exit()
   {
     cd "${LAST}"
-    while [[ "${PWD}/" != "${1}/" ]]; do
-      if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
-        if [[ -e .dircmd/exit ]]; then
-          source .dircmd/exit
-        fi
-        rmdir "${DIRCMD_SHM}${PWD}"
-      fi
-      cd ..
-      if ! echo "${PWD}/" | egrep -q "^//$" ; then
+    _dircmd_run_exit
+    while [[ "${PWD}" != "${1}" ]]; do
+      if [[ "${PWD}" == "/" ]]; then
         break
       fi
+      _dircmd_run_exit
+      cd ..
     done
     cd "${CURRENT}"
   }
   _dircmd_entry()
   {
     local LIST
-    while [[ "${PWD}/" != "${1}/" ]]; do
+    while [[ "${PWD}" != "${1}" ]]; do
       if [[ -d .dircmd ]]; then
         LIST[${#LIST[@]}]="${PWD}"
       fi
@@ -54,26 +59,29 @@ _dircmd_hook()
     done
     cd "${CURRENT}"
   }
+  _dircmd_compare()
+  {
+    DIR1="${LAST}"
+    DIR2="${CURRENT}"
+    while ! echo "${DIR2}" | egrep -q "^${DIR1}" ; do
+      DIR1="$(dirname ${DIR1})"
+      if [[ "${DIR1}" == "/" ]]; then
+        break
+      fi
+    done
+    echo "${DIR1}"
+  }
   if [[ -d "${LAST}" ]]; then
     if echo "${LAST}" | egrep -q "^${CURRENT}$" ;then
       if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
-        _dircmd_entry "/"
+        _dircmd_entry "$(_dircmd_compare)"
       fi
     else
       if echo "${CURRENT}/" | egrep -q "^${LAST}/" ;then
         _dircmd_entry "${LAST}"
       else
-        if echo "${LAST}" | egrep -q "^${CURRENT}/" ;then
-          _dircmd_exit "${CURRENT}"
-        else
-          if echo "$(dirname ${LAST})" | egrep -q "^$(dirname ${CURRENT})$" ; then
-            _dircmd_exit "$(dirname ${CURRENT})"
-            _dircmd_entry "${CURRENT}"
-          else
-            _dircmd_exit "/"
-            _dircmd_entry "${CURRENT}"
-          fi
-        fi
+        _dircmd_exit "$(_dircmd_compare)"
+        _dircmd_entry "${CURRENT}"
       fi
     fi
   else
