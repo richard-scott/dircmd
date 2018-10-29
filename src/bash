@@ -12,9 +12,9 @@ trap "$(trap -p 'EXIT' | cut -d "'" -f 2- \
 _dircmd_hook()
 {
   local previous_exit_status=$?
-  local LAST CURRENT
-  LAST="${OLDPWD}"
-  CURRENT="${PWD}"
+  local DIRCMD_LAST DIRCMD_CURRENT
+  DIRCMD_LAST="${OLDPWD}"
+  DIRCMD_CURRENT="${PWD}"
   _dircmd_run_exit()
   {
     if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
@@ -26,7 +26,7 @@ _dircmd_hook()
   }
   _dircmd_exit()
   {
-    cd "${LAST}"
+    cd "${DIRCMD_LAST}"
     _dircmd_run_exit
     while [[ "${PWD}" != "${1}" ]]; do
       if [[ "${PWD}" == "/" ]]; then
@@ -35,7 +35,7 @@ _dircmd_hook()
       _dircmd_run_exit
       cd ..
     done
-    cd "${CURRENT}"
+    cd "${DIRCMD_CURRENT}"
   }
   _dircmd_entry()
   {
@@ -58,35 +58,35 @@ _dircmd_hook()
         mkdir -p "${DIRCMD_SHM}${PWD}"
       fi
     done
-    cd "${CURRENT}"
+    cd "${DIRCMD_CURRENT}"
   }
   _dircmd_compare()
   {
-    local DIR1 DIR2
-    DIR1="${LAST}"
-    DIR2="${CURRENT}"
-    while ! echo "${DIR2}" | egrep -q "^${DIR1}" ; do
-      DIR1="$(dirname ${DIR1})"
-      if [[ "${DIR1}" == "/" ]]; then
+    local DIRCMD_DIR1 DIRCMD_DIR2
+    DIRCMD_DIR1="${DIRCMD_LAST}"
+    DIRCMD_DIR2="${DIRCMD_CURRENT}"
+    while ! echo "${DIRCMD_DIR2}" | egrep -q "^${DIRCMD_DIR1}" ; do
+      DIRCMD_DIR1="$(dirname ${DIRCMD_DIR1})"
+      if [[ "${DIRCMD_DIR1}" == "/" ]]; then
         break
       fi
     done
-    echo "${DIR1}"
+    echo "${DIRCMD_DIR1}"
   }
-  if [[ -d "${LAST}" ]]; then
-    if echo "${LAST}" | egrep -q "^${CURRENT}$" ;then
+  if [[ -d "${DIRCMD_LAST}" ]]; then
+    if echo "${DIRCMD_LAST}" | egrep -q "^${DIRCMD_CURRENT}$" ;then
       # Staying in same directory.
       if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
         _dircmd_entry "$(_dircmd_compare)"
       fi
     else
-      if echo "${CURRENT}/" | egrep -q "^${LAST}/" ;then
+      if echo "${DIRCMD_CURRENT}/" | egrep -q "^${DIRCMD_LAST}/" ;then
         # Moving into a sub directory.
-        _dircmd_entry "${LAST}"
+        _dircmd_entry "${DIRCMD_LAST}"
       else
         # Going up to a parent directory or out the tree.
         _dircmd_exit "$(_dircmd_compare)"
-        _dircmd_entry "${CURRENT}"
+        _dircmd_entry "${DIRCMD_CURRENT}"
       fi
     fi
   else
