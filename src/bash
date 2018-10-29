@@ -39,18 +39,18 @@ _dircmd_hook()
   }
   _dircmd_entry()
   {
-    local LIST
+    local DIRCMD_LIST
     while [[ "${PWD}" != "${1}" ]]; do
       if [[ -d .dircmd ]]; then
-        LIST[${#LIST[@]}]="${PWD}"
+        DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
       fi
       cd ..
     done
     if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
-      LIST[${#LIST[@]}]="${PWD}"
+      DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
     fi
-    for (( i=0 ; i < ${#LIST[@]}; i++ )); do
-      cd "${LIST[${i}]}"
+    for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
+      cd "${DIRCMD_LIST[${i}]}"
       if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
         if [[ -e .dircmd/entry ]]; then
           source .dircmd/entry
