@@ -1,5 +1,6 @@
-if [[ -e bin/activate ]]; then
-  source bin/activate
+ACTIVATE="$(find ${PWD} -name 'activate')"
+if [[ -n "${ACTIVATE}" ]]; then
+  source ${ACTIVATE}
 fi
 [ -n "$(alias pip 2>/dev/null)" ] && OLDPIP="$(alias pip | base64)"
 alias pip='pip --no-cache-dir'
