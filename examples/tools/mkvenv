@@ -3,18 +3,19 @@ if [[ -z "${2}" ]]; then
   exit 1
 fi
 NAME="$(echo ${1} | tr '[:upper:]' '[:lower:]')"
-cd ~
 mkdir -p ${1}
 cd ${1}
-if ! pip3 list --format=freeze 2>&1 | egrep -q "^virtualenv\=\=" ; then
-  pip3 install "${PIPPACKAGE}"
-fi
-if [[ ! -d ${NAME} ]]; then
+for PIPPACKAGE in virtualenv ; do
+  if ! pip3 list --format=freeze 2>&1 | egrep -q "^virtualenv\=\=" ; then
+    pip3 install "${PIPPACKAGE}"
+  fi
+done
+if [[ ! -d ${2} ]]; then
   mkdir ${2}
   cd ${2}
-  virtualenv --prompt "|> ${NAME} <| " env
+  virtualenv --prompt "|> ${NAME} <| " ${PWD}
   mkdir .dircmd
-  curl --location --silent --output .dircmd/entry https://github.com/dircmd/dircmd/raw/master/examples/virtualenv/entry
-  curl --location --silent --output .dircmd/exit https://github.com/dircmd/dircmd/raw/master/examples/virtualenv/exit
+  curl --location --silent --output .dircmd/00entry https://github.com/dircmd/dircmd/raw/master/examples/virtualenv/00entry
+  curl --location --silent --output .dircmd/99exit https://github.com/dircmd/dircmd/raw/master/examples/virtualenv/99exit
   chown -R $(stat $HOME --format "%U:%G") .dircmd
 fi
