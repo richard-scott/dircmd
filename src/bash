@@ -18,9 +18,9 @@ _dircmd_hook()
   _dircmd_run_exit()
   {
     if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
-      if [[ -e .dircmd/exit ]]; then
-        source .dircmd/exit < /dev/null
-      fi
+      for ES in $(ls .dircmd/*exit 2>/dev/null) ; do
+        source ${ES} < /dev/null
+      done
       rmdir "${DIRCMD_SHM}${PWD}"
     fi
   }
@@ -52,9 +52,9 @@ _dircmd_hook()
     for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
       cd "${DIRCMD_LIST[${i}]}"
       if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
-        if [[ -e .dircmd/entry ]]; then
-          source .dircmd/entry < /dev/null
-        fi
+        for ES in $(ls .dircmd/*entry 2>/dev/null) ; do
+          source ${ES} < /dev/null
+        done
         mkdir -p "${DIRCMD_SHM}${PWD}"
       fi
     done
