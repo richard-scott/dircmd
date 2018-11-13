@@ -19,7 +19,7 @@ _dircmd_hook()
   {
     if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
       if [[ -e .dircmd/exit ]]; then
-        source .dircmd/exit
+        source .dircmd/exit < /dev/null
       fi
       rmdir "${DIRCMD_SHM}${PWD}"
     fi
@@ -53,7 +53,7 @@ _dircmd_hook()
       cd "${DIRCMD_LIST[${i}]}"
       if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
         if [[ -e .dircmd/entry ]]; then
-          source .dircmd/entry
+          source .dircmd/entry < /dev/null
         fi
         mkdir -p "${DIRCMD_SHM}${PWD}"
       fi

@@ -1,0 +1,11 @@
+source env/bin/activate
+[ -n "$(alias pip 2>/dev/null)" ] && OLDPIP="$(alias pip | base64)"
+alias pip='pip --no-cache-dir'
+MANAGE_PY="$( find ${PWD} -name manage.py)"
+if [[ -n "${MANAGE_PY}" ]]; then
+  if [[ ! -e /tmp/runserver.pid ]]; then
+    ${MANAGE_PY} runserver 0.0.0.0:8888 >/tmp/runserver.log 2>&1 &
+    echo "$!" >/tmp/runserver.pid
+    disown $(cat /tmp/runserver.pid)
+  fi
+fi
