@@ -1,7 +1,7 @@
-MANAGE_PY="$( find ${PWD} -name manage.py)"
+MANAGE_PY="$(find ${PWD} -name manage.py)"
 if [[ -n "${MANAGE_PY}" ]]; then
   if [[ ! -e /tmp/runserver.pid ]]; then
-    ${MANAGE_PY} runserver 0.0.0.0:8888 >/tmp/runserver.log 2>&1 &
+    ${MANAGE_PY} runserver 0.0.0.0:8080 >/tmp/runserver.log 2>&1 &
     echo "$!" >/tmp/runserver.pid
     disown $(cat /tmp/runserver.pid)
   fi
