@@ -1,3 +1,5 @@
-source env/bin/activate
+if [[ -e bin/activate ]]; then
+  source bin/activate
+fi
 [ -n "$(alias pip 2>/dev/null)" ] && OLDPIP="$(alias pip | base64)"
 alias pip='pip --no-cache-dir'
