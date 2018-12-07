@@ -9,12 +9,17 @@ mkdir -p ${DIRCMD_SHM}
 chmod go=-rwx ${DIRCMD_SHM}
 trap "$(trap -p 'EXIT' | cut -d "'" -f 2- \
   | awk -F "'" '{ if (NF >= 2) printf("%s; ",$(NF-1)); }')rm -rf ${DIRCMD_SHM}" EXIT
+_dircmd_restore_stdin()
+{
+  exec 0<&6 6<&-
+}
 _dircmd_hook()
 {
   local previous_exit_status=$?
   local DIRCMD_LAST DIRCMD_CURRENT
   DIRCMD_LAST="${OLDPWD}"
   DIRCMD_CURRENT="${PWD}"
+  exec 6<&0
   _dircmd_run_exit()
   {
     if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
@@ -94,6 +99,7 @@ _dircmd_hook()
       rmdir "${DIRCMD_SHM}${PWD}"
     fi
   fi
+  _dircmd_restore_stdin
   return $previous_exit_status
 }
 if ! [[ "${PROMPT_COMMAND}" =~ _dircmd_hook ]]; then
