@@ -1,3 +1,5 @@
+![dircmd logo](https://raw.githubusercontent.com/dircmd/dircmd/master/images/tools.png)
+
 # dircmd
 
 
