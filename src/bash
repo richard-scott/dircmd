@@ -26,7 +26,9 @@ _dircmd_hook()
       for ES in $(ls .dircmd/*exit 2>/dev/null) ; do
         source ${ES} < /dev/null
       done
-      rmdir "${DIRCMD_SHM}${PWD}"
+      if [[ "${PWD}" != "/" ]]; then
+        rmdir "${DIRCMD_SHM}${PWD}"
+      fi
     fi
   }
   _dircmd_exit()
@@ -95,8 +97,10 @@ _dircmd_hook()
       fi
     fi
   else
-    if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
-      rmdir "${DIRCMD_SHM}${PWD}"
+    if [[ "${PWD}" != "/" ]]; then
+      if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
+        rmdir "${DIRCMD_SHM}${PWD}"
+      fi
     fi
   fi
   _dircmd_restore_stdin
