@@ -27,7 +27,9 @@ _dircmd_hook()
         source ${ES} < /dev/null
       done
       if [[ "${PWD}" != "/" ]]; then
-        rmdir --ignore-fail-on-non-empty "${DIRCMD_SHM}${PWD}"
+        if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
+          rmdir --ignore-fail-on-non-empty "${DIRCMD_SHM}${PWD}"
+        fi
       fi
     fi
   }
