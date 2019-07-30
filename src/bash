@@ -27,7 +27,7 @@ _dircmd_hook()
         source ${ES} < /dev/null
       done
       if [[ "${PWD}" != "/" ]]; then
-        find "${DIRCMD_SHM}${PWD}" | sort -r | xargs rmdir
+        rmdir --ignore-fail-on-non-empty "${DIRCMD_SHM}${PWD}"
       fi
     fi
   }
@@ -99,7 +99,7 @@ _dircmd_hook()
   else
     if [[ "${PWD}" != "/" ]]; then
       if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
-        find "${DIRCMD_SHM}${PWD}" | sort -r | xargs rmdir
+        rmdir --ignore-fail-on-non-empty "${DIRCMD_SHM}${PWD}"
       fi
     fi
   fi
