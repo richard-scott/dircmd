@@ -1,0 +1,2 @@
+[ -z "${OLDPS1}" ] && OLDPS1="$(echo ${PS1} | base64)"
+export PS1="(venv) ${PS1}"
