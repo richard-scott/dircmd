@@ -31,9 +31,11 @@ _dircmd_hook()
   }
   _dircmd_rmdir()
   {
-    if [[ "${1}" != "/" ]]; then
-      if [[ -d "${DIRCMD_SHM}${1}" ]]; then
-        rm -rf "${DIRCMD_SHM}${1}"
+    if [[ -n "${1}" ]]; then
+      if [[ "${1}" != "/" ]]; then
+        if [[ -d "${DIRCMD_SHM}${1}" ]]; then
+          rm -rf "${DIRCMD_SHM}${1}"
+        fi
       fi
     fi
   }
