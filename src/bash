@@ -26,10 +26,14 @@ _dircmd_hook()
       for ES in $(ls .dircmd/*exit 2>/dev/null) ; do
         source ${ES} < /dev/null
       done
-      if [[ "${PWD}" != "/" ]]; then
-        if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
-          rmdir --ignore-fail-on-non-empty "${DIRCMD_SHM}${PWD}"
-        fi
+      _dircmd_rmdir "${PWD}"
+    fi
+  }
+  _dircmd_rmdir()
+  {
+    if [[ "${1}" != "/" ]]; then
+      if [[ -d "${DIRCMD_SHM}${1}" ]]; then
+        rm -rf "${DIRCMD_SHM}${1}"
       fi
     fi
   }
@@ -99,11 +103,7 @@ _dircmd_hook()
       fi
     fi
   else
-    if [[ "${PWD}" != "/" ]]; then
-      if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
-        rmdir --ignore-fail-on-non-empty "${DIRCMD_SHM}${PWD}"
-      fi
-    fi
+    _dircmd_rmdir "${PWD}"
   fi
   _dircmd_restore_stdin
   return $previous_exit_status
