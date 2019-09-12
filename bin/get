@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+PROJECT_NAME="dircmd"
 GIT_REPO="https://github.com/dircmd/dircmd/raw/master"
 sudo curl --location --silent --output /etc/profile.d/dircmd.sh ${GIT_REPO}/src/bash
 mkdir ~/.dircmd
