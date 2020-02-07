@@ -26,7 +26,6 @@ _dircmd_hook()
     if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
       if [[ -d .dircmd ]]; then
         for ES in $(ls .dircmd/*exit 2>/dev/null) ; do
-          echo "Source Exit: ${ES}"
           source "${ES}" < /dev/null
         done
       fi
@@ -39,7 +38,6 @@ _dircmd_hook()
     if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
       if [[ -d .dircmd ]]; then
         for ES in $(ls .dircmd/*entry 2>/dev/null) ; do
-          echo "Source Entry: ${ES}"
           source "${ES}" < /dev/null
         done
       fi
