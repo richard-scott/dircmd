@@ -22,91 +22,93 @@ _dircmd_hook()
   exec 6<&0
   _dircmd_run_exit()
   {
+    cd "${1}"
     if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
-      for ES in $(ls .dircmd/*exit 2>/dev/null) ; do
-        source ${ES} < /dev/null
-      done
-      _dircmd_rmdir "${PWD}"
+      if [[ -d .dircmd ]]; then
+        for ES in $(ls .dircmd/*exit 2>/dev/null) ; do
+          echo "Source Exit: ${ES}"
+          source "${ES}" < /dev/null
+        done
+      fi
+      rmdir "${DIRCMD_SHM}${PWD}"
     fi
   }
-  _dircmd_rmdir()
+  _dircmd_run_entry()
   {
-    if [[ -n "${1}" ]]; then
-      if [[ "${1}" != "/" ]]; then
-        if [[ -d "${DIRCMD_SHM}${1}" ]]; then
-          rm -rf "${DIRCMD_SHM}${1}"
+    cd ${1}
+    if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
+      if [[ -d .dircmd ]]; then
+        for ES in $(ls .dircmd/*entry 2>/dev/null) ; do
+          echo "Source Entry: ${ES}"
+          source "${ES}" < /dev/null
+        done
+      fi
+      mkdir -p "${DIRCMD_SHM}${PWD}"
+    fi
+  }
+  if [[ -d "${DIRCMD_LAST}" ]]; then
+    local DIRCMD_LIST
+
+    if echo "${DIRCMD_LAST}" | egrep -q "^${DIRCMD_CURRENT}$" ;then
+      #echo "# Staying in same directory."
+      _dircmd_run_entry "${PWD}"
+   else
+      if echo "${DIRCMD_CURRENT}" | egrep -q "^${DIRCMD_LAST}" ;then
+        #echo "# Going into a sub directory."
+        while ! echo "${PWD}" | egrep -q "^${DIRCMD_LAST}$" ; do
+          if [[ -d .dircmd ]]; then
+            DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
+          fi
+          cd ..
+        done
+        for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
+          _dircmd_run_entry "${DIRCMD_LIST[${i}]}"
+        done
+      else
+        if echo "${DIRCMD_LAST}" | egrep -q "^${DIRCMD_CURRENT}" ;then
+          #echo "# Going up to a parent directory."
+          cd "${DIRCMD_LAST}"
+          while echo "${PWD}" | egrep -q "^${DIRCMD_CURRENT}" ; do
+            if [[ -d .dircmd ]]; then
+              DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
+            fi
+            cd ..
+          done
+          for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
+            _dircmd_run_exit "${DIRCMD_LIST[${i}]}"
+          done
+        else
+          #echo "# Going out the tree."
+          cd "${DIRCMD_LAST}"
+          while ! echo "${PWD}" | egrep -q "^/$" ; do
+            if [[ -d .dircmd ]]; then
+              DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
+            fi
+            cd ..
+          done
+          for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
+            _dircmd_run_exit "${DIRCMD_LIST[${i}]}"
+          done
+          unset DIRCMD_LIST
+          local DIRCMD_LIST
+          cd "${DIRCMD_CURRENT}"
+          while ! echo "${PWD}" | egrep -q "^/$" ; do
+            if [[ -d .dircmd ]]; then
+              DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
+            fi
+            cd ..
+          done
+          if [[ -d .dircmd ]]; then
+            DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
+          fi
+          for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
+            _dircmd_run_entry "${DIRCMD_LIST[${i}]}"
+          done
         fi
       fi
     fi
-  }
-  _dircmd_exit()
-  {
-    cd "${DIRCMD_LAST}"
-    _dircmd_run_exit
-    while [[ "${PWD}" != "${1}" ]]; do
-      if [[ "${PWD}" == "/" ]]; then
-        break
-      fi
-      _dircmd_run_exit
-      cd ..
-    done
-    cd "${DIRCMD_CURRENT}"
-  }
-  _dircmd_entry()
-  {
-    local DIRCMD_LIST
-    while [[ "${PWD}" != "${1}" ]]; do
-      if [[ -d .dircmd ]]; then
-        DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
-      fi
-      cd ..
-    done
-    if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
-      DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
-    fi
-    for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
-      cd "${DIRCMD_LIST[${i}]}"
-      if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
-        for ES in $(ls .dircmd/*entry 2>/dev/null) ; do
-          source ${ES} < /dev/null
-        done
-        mkdir -p "${DIRCMD_SHM}${PWD}"
-      fi
-    done
-    cd "${DIRCMD_CURRENT}"
-  }
-  _dircmd_compare()
-  {
-    local DIRCMD_DIR1 DIRCMD_DIR2
-    DIRCMD_DIR1="${DIRCMD_LAST}"
-    DIRCMD_DIR2="${DIRCMD_CURRENT}"
-    while ! echo "${DIRCMD_DIR2}" | egrep -q "^${DIRCMD_DIR1}" ; do
-      DIRCMD_DIR1="$(dirname ${DIRCMD_DIR1})"
-      if [[ "${DIRCMD_DIR1}" == "/" ]]; then
-        break
-      fi
-    done
-    echo "${DIRCMD_DIR1}"
-  }
-  if [[ -d "${DIRCMD_LAST}" ]]; then
-    if echo "${DIRCMD_LAST}" | egrep -q "^${DIRCMD_CURRENT}$" ;then
-      # Staying in same directory.
-      if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
-        _dircmd_entry "$(_dircmd_compare)"
-      fi
-    else
-      if echo "${DIRCMD_CURRENT}/" | egrep -q "^${DIRCMD_LAST}/" ;then
-        # Moving into a sub directory.
-        _dircmd_entry "${DIRCMD_LAST}"
-      else
-        # Going up to a parent directory or out the tree.
-        _dircmd_exit "$(_dircmd_compare)"
-        _dircmd_entry "${DIRCMD_CURRENT}"
-      fi
-    fi
-  else
-    _dircmd_rmdir "${PWD}"
   fi
+  cd "${DIRCMD_CURRENT}"
   _dircmd_restore_stdin
   return $previous_exit_status
 }
