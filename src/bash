@@ -48,7 +48,7 @@ _dircmd_hook()
     local DIRCMD_LIST
 
     if echo "${DIRCMD_LAST}" | egrep -q "^${DIRCMD_CURRENT}$" ;then
-      #echo "# Staying in same directory."
+      # Staying in same directory.
       _dircmd_run_entry "${PWD}"
    else
       if echo "${DIRCMD_CURRENT}" | egrep -q "^${DIRCMD_LAST}" ;then
@@ -64,19 +64,22 @@ _dircmd_hook()
         done
       else
         if echo "${DIRCMD_LAST}" | egrep -q "^${DIRCMD_CURRENT}" ;then
-          #echo "# Going up to a parent directory."
+          # Going up to a parent directory.
           cd "${DIRCMD_LAST}"
           while echo "${PWD}" | egrep -q "^${DIRCMD_CURRENT}" ; do
             if [[ -d .dircmd ]]; then
               DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
             fi
             cd ..
+            if echo "${PWD}" | egrep -q "^${DIRCMD_CURRENT}$" ; then
+              break
+            fi
           done
           for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
             _dircmd_run_exit "${DIRCMD_LIST[${i}]}"
           done
         else
-          #echo "# Going out the tree."
+          # Going out the tree.
           cd "${DIRCMD_LAST}"
           while ! echo "${PWD}" | egrep -q "^/$" ; do
             if [[ -d .dircmd ]]; then
