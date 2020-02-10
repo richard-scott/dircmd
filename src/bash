@@ -1,12 +1,13 @@
 #
 # https://github.com/dircmd/dircmd
 #
+echo "${SHELL}" | egrep -q "/bash$" || return 0
 DIRCMD_SHM="/dev/shm/dircmd-${USER}-$$"
-if [[ -d ${DIRCMD_SHM} ]]; then
-  rm -rf ${DIRCMD_SHM}
+if [[ -d "${DIRCMD_SHM}" ]]; then
+  rm -rf "${DIRCMD_SHM}"
 fi
-mkdir -p ${DIRCMD_SHM}
-chmod go=-rwx ${DIRCMD_SHM}
+mkdir -p "${DIRCMD_SHM}"
+chmod go=-rwx "${DIRCMD_SHM}"
 trap "$(trap -p 'EXIT' | cut -d "'" -f 2- \
   | awk -F "'" '{ if (NF >= 2) printf("%s; ",$(NF-1)); }')rm -rf ${DIRCMD_SHM}" EXIT
 _dircmd_restore_stdin()
