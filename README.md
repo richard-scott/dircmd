@@ -26,7 +26,7 @@ Now you can carry on where you left off, but what if you could reduce your typin
 
 ## Installation
 
-    $ curl -L https://git.io/get_dircmd.sh | sudo bash
+    $ curl -L https://git.io/get_dircmd.sh | bash
 
 ### Usage
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 GIT_REPO="https://github.com/dircmd/dircmd/raw/master"
-sudo curl --location --silent --output /etc/profile.d/dircmd.sh ${GIT_REPO}/src/bash
+sudo curl --location --silent --output /etc/profile.d/dircmd.sh ${GIT_REPO}/src/bash || exit 1
 mkdir ~/.dircmd
 curl --location --silent --output ~/.dircmd/00entry ${GIT_REPO}/examples/helloworld/00entry
 curl --location --silent --output ~/.dircmd/01entry ${GIT_REPO}/examples/helloworld/01entry
 curl --location --silent --output ~/.dircmd/99exit ${GIT_REPO}/examples/helloworld/99exit
-chown -R $(stat $HOME --format "%U:%G") ~/.dircmd
+chown -R ${USER}:$(groups | awk '{print $1}') ~/.dircmd
 echo ""
 echo ">>> Log out and back in to activate or run these commands <<<"
 echo "    source /etc/profile.d/dircmd.sh ; cd .. ; cd"
