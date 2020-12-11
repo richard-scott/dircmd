@@ -30,7 +30,7 @@ _dircmd_hook()
           source "${ES}" < /dev/null
         done
       fi
-      rmdir "${DIRCMD_SHM}${PWD}"
+      rm -rf "${DIRCMD_SHM}${PWD}"
     fi
   }
   _dircmd_run_entry()
