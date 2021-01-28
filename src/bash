@@ -35,7 +35,7 @@ _dircmd_hook()
   }
   _dircmd_run_entry()
   {
-    cd ${1}
+    cd "${1}"
     if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
       if [[ -d .dircmd ]]; then
         for ES in $(ls .dircmd/*entry 2>/dev/null) ; do
