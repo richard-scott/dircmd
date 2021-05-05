@@ -2,14 +2,14 @@
 # https://github.com/dircmd/dircmd
 #
 echo "${SHELL}" | egrep -q "/bash$" || return 0
-DIRCMD_SHM="/dev/shm/dircmd-${USER}-$$"
-if [[ -d "${DIRCMD_SHM}" ]]; then
-  rm -rf "${DIRCMD_SHM}"
+DIRCMD_TMP="$(mktemp -d)-dircmd-${USER}-$$"
+if [[ -d "${DIRCMD_TMP}" ]]; then
+  rm -rf "${DIRCMD_TMP}"
 fi
-mkdir -p "${DIRCMD_SHM}"
-chmod go=-rwx "${DIRCMD_SHM}"
+mkdir -p "${DIRCMD_TMP}"
+chmod go=-rwx "${DIRCMD_TMP}"
 trap "$(trap -p 'EXIT' | cut -d "'" -f 2- \
-  | awk -F "'" '{ if (NF >= 2) printf("%s; ",$(NF-1)); }')rm -rf ${DIRCMD_SHM}" EXIT
+  | awk -F "'" '{ if (NF >= 2) printf("%s; ",$(NF-1)); }')rm -rf ${DIRCMD_TMP}" EXIT
 _dircmd_restore_stdin()
 {
   exec 0<&6 6<&-
@@ -24,25 +24,25 @@ _dircmd_hook()
   _dircmd_run_exit()
   {
     cd "${1}"
-    if [[ -d "${DIRCMD_SHM}${PWD}" ]]; then
+    if [[ -d "${DIRCMD_TMP}${PWD}" ]]; then
       if [[ -d .dircmd ]]; then
         for ES in $(ls .dircmd/*exit 2>/dev/null) ; do
           source "${ES}" < /dev/null
         done
       fi
-      rm -rf "${DIRCMD_SHM}${PWD}"
+      rm -rf "${DIRCMD_TMP}${PWD}"
     fi
   }
   _dircmd_run_entry()
   {
     cd "${1}"
-    if [[ ! -d "${DIRCMD_SHM}${PWD}" ]]; then
+    if [[ ! -d "${DIRCMD_TMP}${PWD}" ]]; then
       if [[ -d .dircmd ]]; then
         for ES in $(ls .dircmd/*entry 2>/dev/null) ; do
           source "${ES}" < /dev/null
         done
       fi
-      mkdir -p "${DIRCMD_SHM}${PWD}"
+      mkdir -p "${DIRCMD_TMP}${PWD}"
     fi
   }
   if [[ -d "${DIRCMD_LAST}" ]]; then
