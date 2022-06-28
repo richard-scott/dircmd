@@ -1,2 +1,1 @@
-export PATH="${OLDPATH}"
-unset OLDPATH
+_dircmd_restore PATH

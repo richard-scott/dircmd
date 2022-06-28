@@ -1,4 +1,4 @@
-export OLDPATH="${PATH}"
+_dircmd_save PATH
 if [[ -d ${PWD}/bin ]]; then
-  export PATH="${PWD}/bin:${OLDPATH}"
+  export PATH="${PWD}/bin:${PATH}"
 fi

@@ -1,2 +1,2 @@
-[ -z "${OLDPS1}" ] && OLDPS1="$(echo ${PS1} | base64)"
+_dircmd_save PS1
 export PS1="(venv) ${PS1}"

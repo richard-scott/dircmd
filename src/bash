@@ -1,119 +1,147 @@
 #
 # https://github.com/dircmd/dircmd
 #
-echo "${SHELL}" | egrep -q "/bash$" || return 0
-DIRCMD_TMP="$(mktemp -d)-dircmd-${USER}-$$"
-if [[ -d "${DIRCMD_TMP}" ]]; then
-  rm -rf "${DIRCMD_TMP}"
+#export DIRCMD_DEBUG=1
+export DIRCMD_VERSION="2.0.0"
+if echo "${SHELL}" | grep -E -q "/bash$" ; then
+  export DIRCMD_PATH="${BASH_SOURCE[0]}"
 fi
-mkdir -p "${DIRCMD_TMP}"
-chmod go=-rwx "${DIRCMD_TMP}"
-trap "$(trap -p 'EXIT' | cut -d "'" -f 2- \
-  | awk -F "'" '{ if (NF >= 2) printf("%s; ",$(NF-1)); }')rm -rf ${DIRCMD_TMP}" EXIT
-_dircmd_restore_stdin()
+
+if ! declare -p DIRCMD_STORAGE >/dev/null 2>&1 ; then
+  declare -A DIRCMD_STORAGE
+fi
+
+_dircmd_get_hash()
 {
-  exec 0<&6 6<&-
+  echo "DIRCMD_$(echo ${PWD} | sha1sum | awk '{print $1}')"
 }
+
+_dircmd_source()
+{
+  if [[ -e .dircmd ]]; then
+    for ES in $(ls .dircmd/*${1} 2>/dev/null) ; do
+      if [[ -n "${DIRCMD_DEBUG}" ]]; then
+        echo "Sourcing: ${PWD}/${ES}"
+      fi
+      export DIRCMD_HASH="$(_dircmd_get_hash)"
+      source "${ES}" < /dev/null
+    done
+  fi
+}
+
 _dircmd_hook()
 {
   local previous_exit_status=$?
-  local DIRCMD_LAST DIRCMD_CURRENT
-  DIRCMD_LAST="${OLDPWD}"
-  DIRCMD_CURRENT="${PWD}"
   exec 6<&0
-  _dircmd_run_exit()
-  {
-    cd "${1}"
-    if [[ -d "${DIRCMD_TMP}${PWD}" ]]; then
-      if [[ -d .dircmd ]]; then
-        for ES in $(ls .dircmd/*exit 2>/dev/null) ; do
-          source "${ES}" < /dev/null
-        done
-      fi
-      rm -rf "${DIRCMD_TMP}${PWD}"
-    fi
-  }
-  _dircmd_run_entry()
-  {
-    cd "${1}"
-    if [[ ! -d "${DIRCMD_TMP}${PWD}" ]]; then
-      if [[ -d .dircmd ]]; then
-        for ES in $(ls .dircmd/*entry 2>/dev/null) ; do
-          source "${ES}" < /dev/null
-        done
-      fi
-      mkdir -p "${DIRCMD_TMP}${PWD}"
-    fi
-  }
-  if [[ -d "${DIRCMD_LAST}" ]]; then
-    local DIRCMD_LIST
+  local HASH="$(_dircmd_get_hash)"
 
-    if echo "${DIRCMD_LAST}" | egrep -q "^${DIRCMD_CURRENT}$" ;then
-      # Staying in same directory.
-      _dircmd_run_entry "${PWD}"
-   else
-      if echo "${DIRCMD_CURRENT}" | egrep -q "^${DIRCMD_LAST}" ;then
-        #echo "# Going into a sub directory."
-        while ! echo "${PWD}" | egrep -q "^${DIRCMD_LAST}$" ; do
-          if [[ -d .dircmd ]]; then
-            DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
-          fi
-          cd ..
-        done
-        for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
-          _dircmd_run_entry "${DIRCMD_LIST[${i}]}"
-        done
-      else
-        if echo "${DIRCMD_LAST}" | egrep -q "^${DIRCMD_CURRENT}" ;then
-          # Going up to a parent directory.
-          cd "${DIRCMD_LAST}"
-          while echo "${PWD}" | egrep -q "^${DIRCMD_CURRENT}" ; do
-            if [[ -d .dircmd ]]; then
-              DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
-            fi
-            cd ..
-            if echo "${PWD}" | egrep -q "^${DIRCMD_CURRENT}$" ; then
-              break
-            fi
-          done
-          for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
-            _dircmd_run_exit "${DIRCMD_LIST[${i}]}"
-          done
-        else
-          # Going out the tree.
-          cd "${DIRCMD_LAST}"
-          while ! echo "${PWD}" | egrep -q "^/$" ; do
-            if [[ -d .dircmd ]]; then
-              DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
-            fi
-            cd ..
-          done
-          for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
-            _dircmd_run_exit "${DIRCMD_LIST[${i}]}"
-          done
-          unset DIRCMD_LIST
-          local DIRCMD_LIST
-          cd "${DIRCMD_CURRENT}"
-          while ! echo "${PWD}" | egrep -q "^/$" ; do
-            if [[ -d .dircmd ]]; then
-              DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
-            fi
-            cd ..
-          done
-          if [[ -d .dircmd ]]; then
-            DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
-          fi
-          for (( i=0 ; i < ${#DIRCMD_LIST[@]}; i++ )); do
-            _dircmd_run_entry "${DIRCMD_LIST[${i}]}"
-          done
-        fi
-      fi
+  local CHECKSUM="$(sha1sum ${BASH_SOURCE[0]} | awk '{print $1}')"
+  if [[ -z "${DIRCMD_CHECKSUM}" ]]; then
+    export DIRCMD_CHECKSUM="$(echo ${CHECKSUM})"
+  fi
+  if [[ -n "${DIRCMD_CHECKSUM}" ]]; then
+    if [[ ${CHECKSUM} != ${DIRCMD_CHECKSUM} ]]; then
+      unset DIRCMD_CHECKSUM
+      source ${DIRCMD_PATH}
+      _dircmd_hook
+      return 0
     fi
   fi
-  cd "${DIRCMD_CURRENT}"
-  _dircmd_restore_stdin
+  if [[ ${DIRCMD_HASH} != "${HASH}" ]]; then
+    export DIRCMD_HASH="$(_dircmd_get_hash)"
+    local OLD_DIR="${OLDPWD}"
+    local NEW_DIR="${PWD}"
+
+    if [[ -n "${DIRCMD_DEBUG}" ]]; then
+      echo "OLD_DIR: ${OLD_DIR}"
+      echo "NEW_DIR: ${NEW_DIR}"
+    fi
+    if echo "${OLD_DIR}" | grep -E -q "^${PWD}" && ! echo "${OLD_DIR}" | grep -E -q "^${PWD}$" ; then
+      if [[ -n "${DIRCMD_DEBUG}" ]]; then
+        echo ">>> [up]"
+      fi
+      cd "${OLD_DIR}"
+      while ! echo "${PWD}" | grep -E -q "^(/|${NEW_DIR})$" ; do
+        if [[ -n "${DIRCMD_DEBUG}" ]]; then
+          echo "PWD: ${PWD}"
+        fi
+        _dircmd_source "exit"
+        cd ..
+      done
+    elif echo "${PWD}" | grep -E -q "^${OLD_DIR}" ; then
+      if echo "${OLD_DIR}" | grep -E -q "^${PWD}$" ; then
+        if [[ -n "${DIRCMD_DEBUG}" ]]; then
+          echo ">>> [first]"
+        fi
+        OLD_DIR="/"
+      fi
+      if [[ -n "${DIRCMD_DEBUG}" ]]; then
+        echo ">>> [down]"
+      fi
+      while ! echo "${PWD}" | grep -E -q "^${OLD_DIR}$" ; do
+        if [[ -e .dircmd ]]; then
+          local DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
+        fi
+        cd ..
+      done
+      cd "${NEW_DIR}"
+      for (( i=${#DIRCMD_LIST[@]} ; i >= 0 ; i-- )); do
+        cd "${DIRCMD_LIST[${i}]}"
+        _dircmd_source "entry"
+      done
+    else
+      if [[ -n "${DIRCMD_DEBUG}" ]]; then
+        echo ">>> [out]"
+      fi
+      cd "${OLD_DIR}"
+      while ! echo "${PWD}" | grep -E -q "^(/|${NEW_DIR})$" ; do
+        if [[ -n "${DIRCMD_DEBUG}" ]]; then
+          echo "PWD: ${PWD}"
+        fi
+        _dircmd_source "exit"
+        cd ..
+      done
+      cd "${NEW_DIR}"
+      OLD_DIR="/"
+      while ! echo "${PWD}" | grep -E -q "^${OLD_DIR}$" ; do
+        if [[ -e .dircmd ]]; then
+          local DIRCMD_LIST[${#DIRCMD_LIST[@]}]="${PWD}"
+        fi
+        cd ..
+      done
+      for (( i=${#DIRCMD_LIST[@]} ; i >= 0 ; i-- )); do
+        cd "${DIRCMD_LIST[${i}]}"
+        _dircmd_source "entry"
+      done
+      cd "${NEW_DIR}"
+    fi
+  else
+    if [[ -n "${DIRCMD_DEBUG}" ]]; then
+      echo ">>> [same]"
+    fi
+  fi
+  exec 6<&0
+  export DIRCMD_HASH="$(_dircmd_get_hash)"
   return $previous_exit_status
 }
+
 if ! [[ "${PROMPT_COMMAND}" =~ _dircmd_hook ]]; then
-  PROMPT_COMMAND="type -t _dircmd_hook >/dev/null && _dircmd_hook;${PROMPT_COMMAND}"
+  PROMPT_COMMAND="_dircmd_hook; ${PROMPT_COMMAND}"
 fi
+
+_dircmd_save()
+{
+  VAR_NAME="${DIRCMD_HASH}_${1}"
+  VAR_DATA="${!1}"
+  DIRCMD_STORAGE[${VAR_NAME}]="${VAR_DATA}"
+}
+
+_dircmd_restore()
+{
+  VAR_NAME="${DIRCMD_HASH}_${1}"
+  VAR_DATA="${DIRCMD_STORAGE[${VAR_NAME}]}"
+  if [[ -n "${VAR_DATA}" ]]; then
+    unset ${1}
+    export ${1}="${VAR_DATA}"
+  fi
+}
