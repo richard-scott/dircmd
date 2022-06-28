@@ -53,7 +53,11 @@ _dircmd_hook()
   fi
   if [[ ${DIRCMD_HASH} != "${HASH}" ]]; then
     export DIRCMD_HASH="$(_dircmd_get_hash)"
-    local OLD_DIR="${OLDPWD}"
+    if [[ -z "${OLDPWD}" ]]; then
+      local OLD_DIR="${PWD}"
+    else
+      local OLD_DIR="${OLDPWD}"
+    fi
     local NEW_DIR="${PWD}"
 
     if [[ -n "${DIRCMD_DEBUG}" ]]; then
