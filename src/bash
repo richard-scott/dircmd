@@ -8,7 +8,11 @@ if echo "${SHELL}" | grep -E -q "/bash$" ; then
 fi
 
 if ! declare -p DIRCMD_STORAGE >/dev/null 2>&1 ; then
-  declare -A DIRCMD_STORAGE
+  if uname -s | grep -i -q 'darwin' ; then
+    declare -a DIRCMD_STORAGE
+  else
+    declare -A DIRCMD_STORAGE
+  fi
 fi
 
 _dircmd_get_hash()
