@@ -94,6 +94,7 @@ _dircmd_hook() {
         cd "${DIRCMD_LIST[${i}]}"
         _dircmd_source "entry"
       done
+      cd "${NEW_DIR}"
     else
       if [[ -n "${DIRCMD_DEBUG}" ]]; then
         echo ">>> [out]"
