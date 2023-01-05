@@ -2,7 +2,7 @@
 # https://github.com/dircmd/dircmd
 #
 #export DIRCMD_DEBUG=1
-export DIRCMD_VERSION="2.0.0"
+export DIRCMD_VERSION="2.0.1"
 if echo "${SHELL}" | grep -E -q "/bash$"; then
   export DIRCMD_PATH="${BASH_SOURCE[0]}"
 fi
@@ -96,6 +96,7 @@ _dircmd_hook() {
         cd "${DIRCMD_LIST[${i}]}"
         _dircmd_source "entry"
       done
+      cd "${NEW_DIR}"
     else
       if [[ -n "${DIRCMD_DEBUG}" ]]; then
         echo ">>> [out]"
