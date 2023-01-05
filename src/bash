@@ -21,13 +21,15 @@ _dircmd_get_hash() {
 
 _dircmd_source() {
   if [[ -e .dircmd ]]; then
-    for ES in .dircmd/*${1}; do
-      if [[ -n "${DIRCMD_DEBUG}" ]]; then
-        echo "Sourcing: ${PWD}/${ES}"
-      fi
-      export DIRCMD_HASH="$(_dircmd_get_hash)"
-      source "${ES}" </dev/null
-    done
+    if [[ $(find .dircmd -type f 2>/dev/null | wc -l) -gt 0 ]]; then
+      for ES in .dircmd/*${1}; do
+        if [[ -n "${DIRCMD_DEBUG}" ]]; then
+          echo "Sourcing: ${PWD}/${ES}"
+        fi
+        export DIRCMD_HASH="$(_dircmd_get_hash)"
+        source "${ES}" </dev/null
+      done
+    fi
   fi
 }
 
