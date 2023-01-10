@@ -2,7 +2,7 @@
 # https://github.com/dircmd/dircmd
 #
 #export DIRCMD_DEBUG=1
-export DIRCMD_VERSION="2.0.1"
+export DIRCMD_VERSION="2.0.2"
 if echo "${SHELL}" | grep -E -q "/bash$"; then
   export DIRCMD_PATH="${BASH_SOURCE[0]}"
 fi
