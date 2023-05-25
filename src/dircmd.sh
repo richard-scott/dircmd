@@ -1,0 +1,68 @@
+#
+# https://github.com/dircmd/dircmd
+#
+export DIRCMD_VERSION="3.0.0"
+
+# Detect Shell Type
+unset SHELL_TYPE
+if [[ -n "${BASH_VERSION}" ]]; then
+  export SHELL_TYPE="bash"
+fi
+if [[ -n "${ZSH_VERSION}" ]]; then
+  export SHELL_TYPE="zsh"
+fi
+if [[ -z "${SHELL_TYPE}" ]]; then
+  return 0
+fi
+
+_dircmd_search_tree() {
+
+  local _start_dir="${1}"
+  local _end_dir="${2}"
+  local _reverse_list="${3:-0}"
+  local _search_list=()
+
+  while ! echo "${_start_dir}" | grep -qE "^${_end_dir}$"; do
+    if [[ -d "${_start_dir}/.dircmd" ]]; then
+      _search_list+=("${_start_dir}/.dircmd")
+    fi
+    _start_dir="$(dirname "${_start_dir}")"
+  done
+
+  if [[ ${_reverse_list} -eq 0 ]]; then
+    local _squence=$(seq --separator=" " 0 $(("${#_search_list[@]}" - 1)))
+    local _mode="exit"
+  else
+    local _squence=$(seq --separator=" " 0 $(("${#_search_list[@]}" - 1)) | rev)
+    local _mode="entry"
+  fi
+
+  for i in ${_squence}; do
+    echo "${i}: ${_search_list[${i}]}/${_mode}"
+  done
+
+}
+
+_dircmd_hook() {
+  if [[ -z "${DIRCMD_OLDPWD}" ]] || echo "${DIRCMD_OLDPWD}" | grep -qE "^${PWD}$"; then
+    true
+  else
+    if echo "${OLDPWD}" | grep -qE "^${PWD}"; then
+      _dircmd_search_tree "${OLDPWD}" "${PWD}" 0
+    elif echo "${PWD}" | grep -qE "^${OLDPWD}"; then
+      _dircmd_search_tree "${PWD}" "${OLDPWD}" 1
+    else
+      _dircmd_search_tree "${OLDPWD}" "/" 0
+      _dircmd_search_tree "${PWD}" "/" 1
+    fi
+  fi
+  export DIRCMD_OLDPWD="${PWD}"
+}
+
+if [[ ! ${PROMPT_COMMAND[*]} =~ '_dircmd_hook' ]]; then
+  PROMPT_COMMAND+=("_dircmd_hook")
+fi
+prmptcmd() {
+  eval "${PROMPT_COMMAND}"
+}
+precmd_functions=(prmptcmd)
