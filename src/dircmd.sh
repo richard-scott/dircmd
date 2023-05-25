@@ -38,9 +38,10 @@ _dircmd_search_tree() {
   fi
 
   for i in ${_squence}; do
-    echo "${i}: ${_search_list[${i}]}/${_mode}"
+    for ES in $(ls ${_search_list[${i}]}/*${_mode} 2>/dev/null); do
+      source "${ES}" </dev/null
+    done
   done
-
 }
 
 _dircmd_hook() {
