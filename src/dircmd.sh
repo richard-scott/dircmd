@@ -30,10 +30,10 @@ _dircmd_search_tree() {
   done
 
   if [[ ${_reverse_list} -eq 0 ]]; then
-    local _squence=$(seq --separator=" " 0 $(("${#_search_list[@]}" - 1)))
+    local _squence=$(seq --separator=" " 0 "${#_search_list[@]}")
     local _mode="exit"
   else
-    local _squence=$(seq --separator=" " 0 $(("${#_search_list[@]}" - 1)) | rev)
+    local _squence=$(seq --separator=" " 0 "${#_search_list[@]}" | rev)
     local _mode="entry"
   fi
 
