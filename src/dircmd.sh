@@ -60,6 +60,21 @@ _dircmd_hook() {
   export DIRCMD_OLDPWD="${PWD}"
 }
 
+_dircmd_save() {
+  VAR_NAME="${DIRCMD_HASH}_${1}"
+  VAR_DATA="${!1}"
+  DIRCMD_STORAGE[${VAR_NAME}]="${VAR_DATA}"
+}
+
+_dircmd_restore() {
+  VAR_NAME="${DIRCMD_HASH}_${1}"
+  VAR_DATA="${DIRCMD_STORAGE[${VAR_NAME}]}"
+  if [[ -n "${VAR_DATA}" ]]; then
+    unset ${1}
+    export ${1}="${VAR_DATA}"
+  fi
+}
+
 if [[ ! ${PROMPT_COMMAND[*]} =~ '_dircmd_hook' ]]; then
   PROMPT_COMMAND+=("_dircmd_hook")
 fi
