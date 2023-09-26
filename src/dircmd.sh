@@ -75,9 +75,13 @@ _dircmd_restore() {
   fi
 }
 
-if [[ ! ${PROMPT_COMMAND[*]} =~ '_dircmd_hook' ]]; then
+if ((BASH_VERSINFO[0] > 5 || BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1)); then
+  PROMPT_COMMAND=${PROMPT_COMMAND-}
   PROMPT_COMMAND+=("_dircmd_hook")
+else
+  PROMPT_COMMAND="_dircmd_hook; ${PROMPT_COMMAND}"
 fi
+
 prmptcmd() {
   eval "${PROMPT_COMMAND}"
 }
